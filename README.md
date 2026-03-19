@@ -1,0 +1,100 @@
+# Causal Inference Benchmark
+
+A growing suite for comparing causal inference methods on four canonical
+building-block cases. Every time a new method is found in the literature,
+it is implemented as a script in `methods/`, run on all cases, and the
+results table in `LOG.md` is updated automatically.
+
+---
+
+## Benchmark cases
+
+The four cases are the *building blocks* of causal interaction from:
+
+> Martínez-Sánchez & Lozano-Durán, *Commun. Phys.* 9, 15 (2025).
+> <https://doi.org/10.1038/s42005-025-02447-w>
+
+| # | Name | Governing equations (Q1, Q2, Q3) | Expected structure |
+|---|------|----------------------------------|--------------------|
+| 1 | **Mediator**    | Q1 = sin(Q2) + ε, Q2 = cos(Q3) + ε, Q3 = AR(1)       | Q3→Q2→Q1 (no direct Q3→Q1)     |
+| 2 | **Confounder**  | Q1 = sin(Q1+Q3) + ε, Q2 = cos(Q2−Q3) + ε, Q3 = AR(1) | Q3→Q1 and Q3→Q2 (common cause) |
+| 3 | **Synergistic** | Q1 = sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = AR(1)           | Q2×Q3→Q1 (joint effect only)   |
+| 4 | **Redundant**   | Q1 = 0.3Q1 + sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = Q2     | Q2=Q3→Q1 (identical information)|
+
+The **pass criterion** for each case is evaluated on Q1 as the key target:
+
+| Case | Pass if… |
+|------|----------|
+| 1 | `U2` dominates (Q2 is the direct driver of Q1, not Q3) |
+| 2 | `U2` is **absent** (Q2→Q1 would be spurious — Q3 is the common cause) |
+| 3 | `S23` dominates (only the joint Q2,Q3 can predict Q1) |
+| 4 | `R23` dominates (Q2 and Q3 carry identical information about Q1) |
+
+---
+
+## Results
+
+See [LOG.md](LOG.md) for the full results table and per-method discussion.
+
+---
+
+## Repository structure
+
+```
+causal-inference-benchmark/
+├── benchmarks/
+│   └── building_blocks.py   # data generators for the 4 cases
+├── methods/
+│   ├── surd.py              # SURD (first method)
+│   └── _surd/               # SURD core algorithm (from ALD-Lab/SURD)
+├── results/
+│   └── figures/             # output plots (gitignored)
+├── run_benchmarks.py        # runs all methods and updates LOG.md
+├── LOG.md                   # results table + method descriptions
+└── requirements.txt
+```
+
+---
+
+## Adding a new method
+
+1. Create `methods/<method_name>.py` with the following interface:
+
+```python
+NAME       = "MyMethod"
+DEFINITION = "One-line description of what causality means in this method."
+REFERENCE  = "Author et al., Journal (Year). https://doi.org/..."
+
+def run(X: np.ndarray, nbins: int = 50, nlag: int = 1) -> list:
+    """Run the method. Returns one dict per target variable."""
+    ...
+
+def evaluate(results: list, case: int) -> dict:
+    """Return {'pass': bool, 'dominant': str, 'score': float, 'expected': str, 'note': str}."""
+    ...
+```
+
+2. Run `python run_benchmarks.py` — the results table in `LOG.md` updates automatically.
+
+---
+
+## Installation
+
+```bash
+# pip
+pip install -r requirements.txt
+
+# uv
+uv pip install -r requirements.txt
+```
+
+## Running the benchmarks
+
+```bash
+python run_benchmarks.py              # N=200,000 (fast, ~3 s)
+python run_benchmarks.py --N 5000000  # N=5,000,000 (converged, as in original paper)
+```
+
+> **Note:** The original paper uses N=5×10⁷ for fully converged results.
+> N=200,000 is sufficient to identify the dominant contribution in most cases
+> but results may shift slightly for cases with weaker causal signals.
