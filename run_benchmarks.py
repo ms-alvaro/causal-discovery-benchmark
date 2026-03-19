@@ -17,9 +17,11 @@ from pathlib import Path
 import numpy as np
 
 from benchmarks.building_blocks import CASES
+from generate_data import load as load_data, generate_and_save, data_path
 
 METHODS_DIR  = Path("methods")
 FIGURES_DIR  = Path("results/figures")
+RESULTS_DIR  = Path("results")
 LOG_FILE     = Path("LOG.md")
 
 _RESULTS_START  = "<!-- RESULTS:START -->"
@@ -46,15 +48,19 @@ def run_all(N: int, nbins: int, nlag: int, seed: int) -> tuple:
     methods = load_methods()
     all_results = {}   # all_results[method_key][case_id] = eval dict
     all_raw     = {}   # all_raw[method_key][case_id] = raw results list
-    all_figs    = {}   # all_figs[method_key] = [(case_id, fig), ...]
 
     for case_id, case_info in CASES.items():
         print(f"\n{'='*60}")
         print(f"Case {case_id}: {case_info['name']}  —  {case_info['description']}")
         print(f"{'='*60}")
 
-        X = case_info["fn"](N)
-        X = X[:, 5_000:]   # discard transient
+        # Load pre-generated data if available, otherwise generate on the fly
+        try:
+            X = load_data(case_id, N)
+            print(f"  (loaded from cache)")
+        except FileNotFoundError:
+            X = case_info["fn"](N + 5_000)
+            X = X[:, 5_000:]
 
         for key, method in methods.items():
             print(f"  [{method.NAME}] running...", end=" ", flush=True)
@@ -73,24 +79,20 @@ def run_all(N: int, nbins: int, nlag: int, seed: int) -> tuple:
             )
             print(f"{status}  dominant={ev['dominant']} ({ev['score']:.2f})  [{elapsed:.1f}s]")
 
-        # ── collect figures (saved to PDF later) ──────────────────────────────
-        for key, method in methods.items():
-            if not hasattr(method, "plot"):
-                continue
-            fig = method.plot(all_raw[key][case_id], case_info["name"])
-            all_figs.setdefault(key, []).append((case_id, fig))
+        # collect raw results for combined figure
+        pass
 
-    # ── save one PDF per method with all cases ────────────────────────────────
+    # ── save single-page PDF per method with all cases ───────────────────────
     import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_pdf import PdfPages
 
-    for key, figs in all_figs.items():
+    for key, method in methods.items():
+        if not hasattr(method, "plot_all_cases"):
+            continue
+        fig      = method.plot_all_cases(all_raw[key], CASES)
         pdf_path = FIGURES_DIR / f"{key}_all_cases.pdf"
-        with PdfPages(pdf_path) as pdf:
-            for case_id, fig in figs:
-                pdf.savefig(fig, bbox_inches="tight")
-                plt.close(fig)
-        print(f"\n  [{key}] all cases saved → {pdf_path}")
+        fig.savefig(pdf_path, dpi=150, bbox_inches="tight", format="pdf")
+        plt.close(fig)
+        print(f"\n  [{key}] single-page PDF saved → {pdf_path}")
 
     return methods, all_results
 
@@ -125,6 +127,40 @@ def build_methods_block(methods):
         lines += [f"### {method.NAME}", f"**Definition:** {method.DEFINITION}",
                   f"**Reference:** {method.REFERENCE}", ""]
     return "\n".join(lines)
+
+
+def save_results_log(methods, all_results, N):
+    """Save a detailed per-method results file to results/<method>_results.txt."""
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    for key, method in sorted(methods.items()):
+        lines = [
+            f"{'='*60}",
+            f"Method : {method.NAME}",
+            f"Run    : {ts}",
+            f"N      : {N:,}",
+            f"{'='*60}",
+            "",
+        ]
+        for case_id, case_info in CASES.items():
+            ev = all_results[key][case_id]
+            status = "PASS" if ev["pass"] is True else ("FAIL" if ev["pass"] is False else "PENDING")
+            lines += [
+                f"Case {case_id}: {case_info['name']}  ({case_info['description']})",
+                f"  Status   : {status}",
+                f"  Dominant : {ev['dominant']}  (score={ev['score']:.4f})",
+                f"  Expected : {ev['expected']}",
+                f"  Note     : {ev['note']}",
+            ]
+            if "all_scores" in ev:
+                lines.append("  All scores (normalised):")
+                for label, val in sorted(ev["all_scores"].items(), key=lambda x: -x[1]):
+                    if val > 0.001:
+                        lines.append(f"    {label:8s}: {val:.4f}")
+            lines.append("")
+        out_path = RESULTS_DIR / f"{key}_results.txt"
+        out_path.write_text("\n".join(lines))
+        print(f"  Results log saved → {out_path}")
 
 
 def update_log(methods, all_results, N):
@@ -184,3 +220,4 @@ if __name__ == "__main__":
 
     methods, all_results = run_all(args.N, args.nbins, args.nlag, args.seed)
     update_log(methods, all_results, args.N)
+    save_results_log(methods, all_results, args.N)

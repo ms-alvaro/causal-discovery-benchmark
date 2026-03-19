@@ -14,9 +14,16 @@ import os
 import sys
 from itertools import combinations as icmb
 
+import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+
+matplotlib.rcParams.update({
+    "text.usetex": True,
+    "font.family": "serif",
+    "font.serif": ["Computer Modern Roman"],
+})
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _surd.surd_core import surd as _surd, nice_print  # noqa: E402
@@ -86,82 +93,107 @@ def _scores(result: dict) -> dict:
     return out
 
 
-def plot(results: list, case_name: str, var_names: list = None) -> plt.Figure:
-    """
-    Plot SURD results using the original SURD style.
+def _build_bars(res: dict, nvars: int, colors: dict):
+    """Return (labels, values, bar_colors) for one target variable result."""
+    sc = _scores(res)
+    labels, values, bar_colors = [], [], []
+    for r in range(nvars, 0, -1):
+        for comb in icmb(range(1, nvars + 1), r):
+            prefix = "U" if len(comb) == 1 else "R"
+            key    = prefix + "".join(map(str, comb))
+            val    = sc.get(key, 0.0)
+            if val > 0:
+                sub = "".join(map(str, comb))
+                labels.append(f"${prefix}_{{{sub}}}$")
+                values.append(val)
+                bar_colors.append(colors[prefix])
+    for r in range(2, nvars + 1):
+        for comb in icmb(range(1, nvars + 1), r):
+            key = "S" + "".join(map(str, comb))
+            val = sc.get(key, 0.0)
+            if val > 0:
+                sub = "".join(map(str, comb))
+                labels.append(f"$S_{{{sub}}}$")
+                values.append(val)
+                bar_colors.append(colors["S"])
+    return labels, values, bar_colors
 
-    One row per target variable; left column = contributions bar chart,
-    right column = information-leak bar.
-    """
-    nvars  = len(results)
-    colors = _surd_colors()
-    if var_names is None:
-        var_names = [f"Q{i+1}" for i in range(nvars)]
 
+def _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_name, fontsize=11):
+    """Draw one (bar chart + leak bar) panel for a single target variable."""
+    labels, values, bar_colors = _build_bars(res, nvars, colors)
+
+    ax_bar.bar(range(len(labels)), values, color=bar_colors, edgecolor="black", linewidth=1.5)
+    ax_bar.set_ylim([0, 1])
+    ax_bar.set_yticks([0, 1])
+    ax_bar.set_xticks(range(len(labels)))
+    ax_bar.set_xticklabels(labels, fontsize=fontsize, rotation=60, ha="right",
+                           rotation_mode="anchor")
+    ax_bar.set_ylabel(f"$Q_{var_name[-1]}^+$", fontsize=fontsize + 1)
+
+    ax_leak.bar([0], [res["info_leak"]], width=0.5, color="gray", edgecolor="black")
+    ax_leak.set_xlim([-1, 1])
+    ax_leak.set_ylim([0, 1])
+    ax_leak.set_yticks([0, 1])
+    ax_leak.set_xticks([])
+
+    for ax in (ax_bar, ax_leak):
+        for spine in ax.spines.values():
+            spine.set_linewidth(1.5)
+        ax.tick_params(width=1.5)
+
+
+def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
+    """
+    Single-page figure with all benchmark cases side by side.
+
+    Parameters
+    ----------
+    all_raw   : {case_id: results_list}
+    case_info : {case_id: {'name': str, ...}}  (from benchmarks.CASES)
+    """
+    case_ids = sorted(all_raw.keys())
+    ncases   = len(case_ids)
+    nvars    = len(all_raw[case_ids[0]])
+    colors   = _surd_colors()
+    var_names = [f"Q{i+1}" for i in range(nvars)]
+
+    # width_ratios: 30 (bar) + 1 (leak) per case
+    width_ratios = [30, 1] * ncases
     fig, axs = plt.subplots(
-        nvars, 2,
-        figsize=(8, 2.8 * nvars),
-        gridspec_kw={"width_ratios": [6, 1]},
+        nvars, ncases * 2,
+        figsize=(5.5 * ncases, 3.2 * nvars),
+        gridspec_kw={"width_ratios": width_ratios, "wspace": 0.45, "hspace": 0.75},
     )
-    if nvars == 1:
-        axs = axs[np.newaxis, :]
 
-    for i, res in enumerate(results):
-        I_R, I_S, info_leak = res["I_R"], res["I_S"], res["info_leak"]
-        sc = _scores(res)
+    for c_idx, case_id in enumerate(case_ids):
+        results   = all_raw[case_id]
+        case_name = case_info[case_id]["name"]
 
-        # Build ordered labels: R (multi-var) → U (single-var) → S
-        labels, values, bar_colors = [], [], []
-        for r in range(nvars, 0, -1):
-            for comb in icmb(range(1, nvars + 1), r):
-                prefix = "U" if len(comb) == 1 else "R"
-                key    = prefix + "".join(map(str, comb))
-                val    = sc.get(key, 0.0)
-                if val > 0:
-                    sub = "".join(map(str, comb))
-                    labels.append(f"${prefix}_{{{sub}}}$")
-                    values.append(val)
-                    bar_colors.append(colors[prefix])
-        for r in range(2, nvars + 1):
-            for comb in icmb(range(1, nvars + 1), r):
-                key = "S" + "".join(map(str, comb))
-                val = sc.get(key, 0.0)
-                if val > 0:
-                    sub = "".join(map(str, comb))
-                    labels.append(f"$S_{{{sub}}}$")
-                    values.append(val)
-                    bar_colors.append(colors["S"])
+        for v_idx, res in enumerate(results):
+            ax_bar  = axs[v_idx, c_idx * 2]
+            ax_leak = axs[v_idx, c_idx * 2 + 1]
 
-        ax_bar, ax_leak = axs[i, 0], axs[i, 1]
+            _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_names[v_idx], fontsize=10)
 
-        ax_bar.bar(range(len(labels)), values, color=bar_colors, edgecolor="black", linewidth=1.5)
-        ax_bar.set_ylim([0, 1])
-        ax_bar.set_yticks([0, 1])
-        ax_bar.set_xticks(range(len(labels)))
-        ax_bar.set_xticklabels(labels, fontsize=14, rotation=60, ha="right",
-                               rotation_mode="anchor")
-        ax_bar.set_title(
-            f"$\\Delta I_{{(\\cdot)\\rightarrow {var_names[i]}^+}} "
-            f"/ I({{Q_{i+1}^+;\\mathbf{{Q}}}})$", pad=10
-        )
+            # Case title on the top row only
+            if v_idx == 0:
+                ax_bar.set_title(
+                    f"\\textbf{{Case {case_id}: {case_name}}}\n"
+                    f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$",
+                    fontsize=10, pad=6
+                )
+                ax_leak.set_title(
+                    r"$\frac{\Delta I_\mathrm{leak}}{H}$",
+                    fontsize=8, pad=6
+                )
+            else:
+                ax_bar.set_title(
+                    f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$",
+                    fontsize=10, pad=6
+                )
+                ax_leak.set_title("", pad=6)
 
-        ax_leak.bar([0], [info_leak], width=0.4, color="gray", edgecolor="black")
-        ax_leak.set_xlim([-1, 1])
-        ax_leak.set_ylim([0, 1])
-        ax_leak.set_yticks([0, 1])
-        ax_leak.set_xticks([])
-        ax_leak.set_title(
-            f"$\\Delta I_{{\\mathrm{{leak}}\\rightarrow {var_names[i]}}} / H(Q_{i+1})$",
-            pad=10
-        )
-
-        for ax in (ax_bar, ax_leak):
-            for spine in ax.spines.values():
-                spine.set_linewidth(2)
-            ax.tick_params(width=2)
-
-    fig.suptitle(f"SURD — {case_name}", fontsize=13, fontweight="bold", y=1.01)
-    fig.tight_layout()
     return fig
 
 

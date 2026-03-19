@@ -11,7 +11,7 @@ results table in `LOG.md` is updated automatically.
 
 The four cases are the *building blocks* of causal interaction from:
 
-> Martínez-Sánchez & Lozano-Durán, *Commun. Phys.* 9, 15 (2025).
+> Martínez-Sánchez & Lozano-Durán, *Communications Physics* 9, 15 (2025).
 > <https://doi.org/10.1038/s42005-025-02447-w>
 
 | # | Name | Governing equations (Q1, Q2, Q3) | Expected structure |
@@ -20,15 +20,6 @@ The four cases are the *building blocks* of causal interaction from:
 | 2 | **Confounder**  | Q1 = sin(Q1+Q3) + ε, Q2 = cos(Q2−Q3) + ε, Q3 = AR(1) | Q3→Q1 and Q3→Q2 (common cause) |
 | 3 | **Synergistic** | Q1 = sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = AR(1)           | Q2×Q3→Q1 (joint effect only)   |
 | 4 | **Redundant**   | Q1 = 0.3Q1 + sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = Q2     | Q2=Q3→Q1 (identical information)|
-
-The **pass criterion** for each case is evaluated on Q1 as the key target:
-
-| Case | Pass if… |
-|------|----------|
-| 1 | `U2` dominates (Q2 is the direct driver of Q1, not Q3) |
-| 2 | `U2` is **absent** (Q2→Q1 would be spurious — Q3 is the common cause) |
-| 3 | `S23` dominates (only the joint Q2,Q3 can predict Q1) |
-| 4 | `R23` dominates (Q2 and Q3 carry identical information about Q1) |
 
 ---
 
@@ -48,7 +39,9 @@ causal-inference-benchmark/
 │   ├── surd.py              # SURD (first method)
 │   └── _surd/               # SURD core algorithm (from ALD-Lab/SURD)
 ├── results/
-│   └── figures/             # output plots (gitignored)
+│   ├── figures/             # output PDFs (tracked) and PNGs (gitignored)
+│   ├── data/                # pre-generated benchmark time series (by N)
+│   └── <method>_results.txt # detailed per-run results log
 ├── run_benchmarks.py        # runs all methods and updates LOG.md
 ├── LOG.md                   # results table + method descriptions
 └── requirements.txt

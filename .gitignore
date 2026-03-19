@@ -8,8 +8,11 @@ __pycache__/
 dist/
 build/
 
-# Results — PNGs ignored (generated locally), PDFs tracked
+# Figures — PNGs ignored (generated locally), PDFs tracked
 results/figures/*.png
+
+# Data — only default N=200k tracked; larger files excluded
+results/data/*_N[0-9][0-9][0-9][0-9][0-9][0-9][0-9]*.npz
 
 # OS
 .DS_Store

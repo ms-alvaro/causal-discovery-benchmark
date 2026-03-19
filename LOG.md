@@ -21,11 +21,11 @@ running `python run_benchmarks.py` updates this file automatically.
 
 <!-- RESULTS:START -->
 
-_Last run: 2026-03-19 16:40 — N=200,000_
+_Last run: 2026-03-19 16:48 — N=200,000_
 
 | Method | Case 1: Mediator | Case 2: Confounder | Case 3: Synergistic | Case 4: Redundant |
 | --- | --- | --- | --- | --- |
-| SURD | ? `U2` (0.94) | ? `S13` (0.49) | ? `S23` (0.76) | ? `S12` (0.43) |
+| SURD | ? `U2` (0.93) | ? `S13` (0.49) | ? `S23` (0.77) | ? `S12` (0.43) |
 
 <!-- RESULTS:END -->
 
