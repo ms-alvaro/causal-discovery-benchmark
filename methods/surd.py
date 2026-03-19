@@ -119,7 +119,8 @@ def _build_bars(res: dict, nvars: int, colors: dict):
     return labels, values, bar_colors
 
 
-def _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_name, fontsize=11):
+def _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_name, fontsize=16,
+                show_ylabel=True):
     """Draw one (bar chart + leak bar) panel for a single target variable."""
     labels, values, bar_colors = _build_bars(res, nvars, colors)
 
@@ -129,13 +130,22 @@ def _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_name, fontsize=11):
     ax_bar.set_xticks(range(len(labels)))
     ax_bar.set_xticklabels(labels, fontsize=fontsize, rotation=60, ha="right",
                            rotation_mode="anchor")
-    ax_bar.set_ylabel(f"$Q_{var_name[-1]}^+$", fontsize=fontsize + 1)
+    ax_bar.tick_params(axis="y", labelsize=fontsize)
+    if show_ylabel:
+        ax_bar.set_ylabel(f"$Q_{var_name[-1]}^+$", fontsize=fontsize + 2)
+    else:
+        ax_bar.set_ylabel("")
+        ax_bar.set_yticklabels([])
 
     ax_leak.bar([0], [res["info_leak"]], width=0.5, color="gray", edgecolor="black")
     ax_leak.set_xlim([-1, 1])
     ax_leak.set_ylim([0, 1])
     ax_leak.set_yticks([0, 1])
     ax_leak.set_xticks([])
+    if show_ylabel:
+        ax_leak.tick_params(axis="y", labelsize=fontsize - 2)
+    else:
+        ax_leak.set_yticklabels([])
 
     for ax in (ax_bar, ax_leak):
         for spine in ax.spines.values():
@@ -174,25 +184,26 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax_bar  = axs[v_idx, c_idx * 2]
             ax_leak = axs[v_idx, c_idx * 2 + 1]
 
-            _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_names[v_idx], fontsize=10)
+            _draw_panel(ax_bar, ax_leak, res, nvars, colors, var_names[v_idx],
+                        fontsize=16, show_ylabel=(c_idx == 0))
 
             # Case title on the top row only
             if v_idx == 0:
                 ax_bar.set_title(
                     f"\\textbf{{Case {case_id}: {case_name}}}\n"
                     f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$",
-                    fontsize=10, pad=6
+                    fontsize=14, pad=8
                 )
                 ax_leak.set_title(
                     r"$\frac{\Delta I_\mathrm{leak}}{H}$",
-                    fontsize=8, pad=6
+                    fontsize=12, pad=8
                 )
             else:
                 ax_bar.set_title(
                     f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$",
-                    fontsize=10, pad=6
+                    fontsize=14, pad=8
                 )
-                ax_leak.set_title("", pad=6)
+                ax_leak.set_title("", pad=8)
 
     return fig
 
