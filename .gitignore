@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# Results — PNGs ignored (generated locally), PDFs tracked
+results/figures/*.png
+
+# OS
+.DS_Store
