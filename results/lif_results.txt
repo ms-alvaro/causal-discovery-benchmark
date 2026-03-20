@@ -1,6 +1,6 @@
 ============================================================
 Method : LIF
-Run    : 2026-03-20 11:06:01
+Run    : 2026-03-20 12:30:56
 N      : 200,000
 ============================================================
 
@@ -11,17 +11,16 @@ Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
   Note     : Q2 dominates LIF→Q1 (direct driver in mediator chain)
   All scores (normalised):
     Q2      : 1.0000
-  Spurious   : Q1→Q2⁺, Q1→Q3⁺, Q2→Q3⁺
+  Spurious   : Q1→Q2⁺
 
 Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
   Status   : FAIL
-  Dominant : Q3  (score=0.7246)
+  Dominant : Q3  (score=1.0000)
   Expected : Q3
   Note     : Q3 dominates LIF→Q1 (common cause; pairwise LIF may flag spurious Q2)
   All scores (normalised):
-    Q3      : 0.7246
-    Q2      : 0.2754
-  Spurious   : Q2→Q1⁺, Q2→Q3⁺
+    Q3      : 1.0000
+  Spurious   : Q2→Q3⁺
 
 Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
   Status   : FAIL
@@ -29,13 +28,10 @@ Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
   Expected : none
   Note     : Both Q2 and Q3 show positive LIF→Q1 (synergistic case)
   All scores (normalised):
-  Spurious   : Q1→Q2⁺
 
 Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
-  Status   : PASS
-  Dominant : Q2  (score=0.5000)
+  Status   : FAIL
+  Dominant : Q2  (score=0.0000)
   Expected : none
   Note     : Both Q2 and Q3 show comparable positive LIF→Q1 (redundant)
   All scores (normalised):
-    Q2      : 0.5000
-    Q3      : 0.5000

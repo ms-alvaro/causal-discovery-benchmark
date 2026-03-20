@@ -21,7 +21,7 @@ running `python run_benchmarks.py` updates this file automatically.
 
 <!-- RESULTS:START -->
 
-_Last run: 2026-03-20 11:06 — N=200,000_
+_Last run: 2026-03-20 12:30 — N=200,000_
 
 | Method | Case 1: Mediator | Case 2: Confounder | Case 3: Synergistic | Case 4: Redundant |
 | --- | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ _Last run: 2026-03-20 11:06 — N=200,000_
 | CGC | ✗ `Q2` (1.00) ⚠`Q1→Q2⁺` | ✓ `Q3` (1.00) | ✗ `Q2` (0.63) ⚠`Q1→Q2⁺` | ✗ `Q2` (0.00) |
 | CTE | ✗ `Q2` (1.00) ⚠`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q3` (0.99) ⚠`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q3` (0.51) ⚠`Q1→Q2⁺`,`Q3→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q2` (0.00) ⚠`Q1→Q2⁺`,`Q1→Q3⁺` |
 | IG | ✗ `Q2` (0.97) ⚠`Q1→Q3⁺` | ✗ `Q3` (0.93) ⚠`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q2` (0.57) ⚠`Q1→Q2⁺`,`Q3→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✓ `Q2` (0.50) |
-| LIF | ✗ `Q2` (1.00) ⚠`Q1→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q3` (0.72) ⚠`Q2→Q1⁺`,`Q2→Q3⁺` | ✗ `Q2` (0.00) ⚠`Q1→Q2⁺` | ✓ `Q2` (0.50) |
+| LIF | ✗ `Q2` (1.00) ⚠`Q1→Q2⁺` | ✗ `Q3` (1.00) ⚠`Q2→Q3⁺` | ✗ `Q2` (0.00) | ✗ `Q2` (0.00) |
 | PCMCI | ✗ `Q2` (0.00) | ✗ `Q2` (0.00) ⚠`Q1→Q3⁺` | ✗ `Q2` (0.00) | ✗ `Q2` (0.00) |
 | SURD | ✓ `U2` (0.93) | ✓ `S13` (0.49) | ✓ `S23` (0.77) | ✓ `S12` (0.43) |
 
@@ -63,7 +63,7 @@ _Last run: 2026-03-20 11:06 — N=200,000_
 **Reference:** Del Tatto, Fortunato, Bueti & Laio, PNAS 121, e2317256121 (2024). https://doi.org/10.1073/pnas.2317256121
 
 ### LIF
-**Definition:** T_{j→i} = rate of Shannon entropy transfer from X_j to X_i; bivariate (pairwise) formula using sample covariances and Euler forward differences.
+**Definition:** T_{j→i} = rate of Shannon entropy transfer from X_j to X_i, conditioned on all other variables via the cofactor matrix of C (multivariate Liang 2021 formula).
 **Reference:** Liang (2014) Phys. Rev. E 90:052150; Liang (2021) Entropy 23:679; Liang & Kleeman (2005) Phys. Rev. Lett. 95:244101.
 
 ### PCMCI

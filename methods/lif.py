@@ -1,13 +1,14 @@
 """
-LIF — Liang's Information Flow
+LIF — Liang's Information Flow (multivariate)
 
 Definition of causality:
-    T_{j→i} measures the rate of Shannon entropy transfer from X_j to X_i.
+    T_{j→i} measures the rate of Shannon entropy transfer from X_j to X_i,
+    conditioned on all other observed variables.
     Positive T_{j→i} means X_j causally influences X_i.
-    Uses the bivariate (pairwise) formula:
-      T_{j→i} = (C_ii · C_ij · C_{j,di} − C_ij² · C_{i,di})
-                / (C_ii² · C_jj − C_ii · C_ij²)
-    where C_{k,di} = cov(X_k, dX_i/dt), dX_i/dt estimated by forward differences.
+    Multivariate formula (Liang 2021):
+      T_{j→i} = (C_{ij}/C_{ii}) * (1/det(C)) * sum_k [ Delta_{jk} * cov(X_k, dX_i/dt) ]
+    where Delta is the cofactor matrix of the full covariance matrix C.
+    Reduces exactly to the bivariate formula (Liang 2014) when nvars=2.
 
 Reference:
     Liang, X.S., Phys. Rev. E 90:052150 (2014).
@@ -35,8 +36,8 @@ from _lif.lif_core import lif_pairwise  # noqa: E402
 
 NAME       = "LIF"
 DEFINITION = (
-    "T_{j→i} = rate of Shannon entropy transfer from X_j to X_i; "
-    "bivariate (pairwise) formula using sample covariances and Euler forward differences."
+    "T_{j→i} = rate of Shannon entropy transfer from X_j to X_i, conditioned on all "
+    "other variables via the cofactor matrix of C (multivariate Liang 2021 formula)."
 )
 REFERENCE  = (
     "Liang (2014) Phys. Rev. E 90:052150; "
@@ -59,7 +60,7 @@ _DIAGRAM_PNG = {
 _BAR_COLOR     = "#D8D8D8"
 _HATCH_PATTERN = "///"
 _SPURIOUS_THR  = 0.25
-_ABS_THR       = 1e-6
+_ABS_THR       = 1e-4   # LIF noise floor; values below this are estimation noise
 
 
 def run(X: np.ndarray, nbins: int = 50, nlag: int = 1) -> list:
