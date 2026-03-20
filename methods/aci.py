@@ -316,12 +316,12 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
     nvars     = all_raw[case_ids[0]][0]["nvars"]
 
     # GridSpec: row 0 = diagram images, rows 1..nvars = bar panels
-    fig = plt.figure(figsize=(4.5 * ncases, 5.5 + 3.0 * nvars))
+    fig = plt.figure(figsize=(4.5 * ncases, 7.5 + 3.0 * nvars))
     gs  = gridspec.GridSpec(
         nvars + 1, ncases,
         figure=fig,
-        height_ratios=[4.0] + [3.0] * nvars,
-        hspace=0.75,
+        height_ratios=[7.0] + [3.0] * nvars,
+        hspace=0.0,
         wspace=0.45,
     )
 
@@ -369,13 +369,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax.tick_params(width=1.5)
 
             title_lbl = f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$"
-            if v_idx == 0:
-                ax.set_title(
-                    f"\\textbf{{Case {case_id}: {case_name}}}\n{title_lbl}",
-                    fontsize=14, pad=8,
-                )
-            else:
-                ax.set_title(title_lbl, fontsize=14, pad=8)
+            ax.set_title(title_lbl, fontsize=14, pad=8)
 
     return fig
 
