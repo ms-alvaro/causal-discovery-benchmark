@@ -77,7 +77,9 @@ def run_all(N: int, nbins: int, nlag: int, seed: int) -> tuple:
                 "FAIL ✗" if ev["pass"] is False else
                 "?"
             )
-            print(f"{status}  dominant={ev['dominant']} ({ev['score']:.2f})  [{elapsed:.1f}s]")
+            spur = ev.get("spurious", [])
+            spur_str = f"  spurious={spur}" if spur else ""
+            print(f"{status}  dominant={ev['dominant']} ({ev['score']:.2f})  [{elapsed:.1f}s]{spur_str}")
 
         # collect raw results for combined figure
         pass
@@ -115,7 +117,9 @@ def build_results_block(methods, all_results, N):
         for i in case_ids:
             ev   = all_results[key][i]
             mark = "✓" if ev["pass"] is True else ("✗" if ev["pass"] is False else "?")
-            cells.append(f"{mark} `{ev['dominant']}` ({ev['score']:.2f})")
+            spur = ev.get("spurious", [])
+            spur_str = f" ⚠`{'`,`'.join(spur)}`" if spur else ""
+            cells.append(f"{mark} `{ev['dominant']}` ({ev['score']:.2f}){spur_str}")
         rows.append(f"| {method.NAME} | " + " | ".join(cells) + " |")
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     return f"_Last run: {ts} — N={N:,}_\n\n" + header + "\n" + sep + "\n" + "\n".join(rows)
@@ -157,6 +161,8 @@ def save_results_log(methods, all_results, N):
                 for label, val in sorted(ev["all_scores"].items(), key=lambda x: -x[1]):
                     if val > 0.001:
                         lines.append(f"    {label:8s}: {val:.4f}")
+            if ev.get("spurious"):
+                lines.append(f"  Spurious   : {', '.join(ev['spurious'])}")
             lines.append("")
         out_path = RESULTS_DIR / f"{key}_results.txt"
         out_path.write_text("\n".join(lines))
