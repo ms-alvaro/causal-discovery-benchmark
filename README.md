@@ -23,6 +23,30 @@ The four cases are the *building blocks* of causal interaction from:
 
 ---
 
+## Methods
+
+| Method | Multivariate | Nonlinear | Stochastic | Contemporaneous | Leak | Time-delay | Self-causation |
+|--------|:-----------:|:---------:|:----------:|:---------------:|:----:|:----------:|:--------------:|
+| ACI    | ✗ᵃ | ✗  | ✓  | ✗  | ✓  | ✓  | ✗  |
+| CCM    | ✗  | ✓  | ✗ᵇ | ✓  | ✗  | ✗ᶜ | ✗  |
+| CGC    | ✓  | ✗  | ✓  | ✗  | ✗  | ✓  | ✓  |
+| CTE    | ✓  | ✓✓ | ✗  | ✗  | ✓  | ✓  | ✓  |
+| IG     | ✗ᵃ | ✓  | ✓  | ✗  | ✗  | ✓  | ✗  |
+| LIF    | ✓  | ✗  | ✓  | ✓  | ✗  | ✓  | ✓  |
+| PCMCI  | ✓  | ✓✓ | ✗ᵈ | ✗  | ✓  | ✓  | ✓  |
+| SURD   | ✓  | ✓  | ✓  | ✓  | ✓✓ | ✓  | ✓  |
+
+**Column definitions:** *Multivariate* — conditions on all observed variables simultaneously; *Nonlinear* — detects nonlinear dependencies (✓✓ = fully nonparametric); *Stochastic* — designed for nondeterministic processes; *Contemporaneous* — detects instantaneous (lag-0) links; *Leak* — estimates information from unobserved variables (✓✓ = explicit decomposition); *Time-delay* — detects time-lagged causal links; *Self-causation* — detects auto-causal (self-lagged) effects.
+
+ᵃ Inherently pairwise (one source, one target at a time); multivariate inference requires all pairwise comparisons.
+ᵇ CCM aims to reconstruct the attractor manifold, making it potentially effective for stochastic systems; however, increased dynamical noise complicates manifold reconstruction.
+ᶜ Extended CCM (eCCM) introduces time-delayed causal interactions.
+ᵈ PCMCI+ accounts for contemporaneous links.
+
+For CGC, CTE, CCM, PCMCI, and SURD, values follow Table 2 of Martínez-Sánchez, Arranz & Lozano-Durán, *Nat. Commun.* 15, 9296 (2024).
+
+---
+
 ## Results
 
 See [LOG.md](LOG.md) for the full results table and per-method discussion.
