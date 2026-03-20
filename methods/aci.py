@@ -47,10 +47,16 @@ REFERENCE  = (
 # Ground-truth causal links: {case_id: {(target_0idx, source_0idx)}}
 # Used both for hatch marking on bars and for drawing diagram arrows.
 _EXPECTED_CAUSAL = {
-    1: {(0, 1), (1, 2)},              # Q2→Q1, Q3→Q2  (mediator)
-    2: {(0, 2), (1, 2)},              # Q3→Q1, Q3→Q2  (confounder)
-    3: set(),                          # no individual linear causality (synergistic)
-    4: {(0, 1), (0, 2), (2, 1)},      # Q2→Q1, Q3→Q1, Q2→Q3 (redundant)
+    # Non-self expected causal sources per (target, source) — 0-indexed.
+    # Self-driven nodes (AR/self-feedback) are omitted since ACI cannot compute self-effects.
+    # Mediator  Q1+=Q2, Q2+=Q3, Q3+=Q3(self only→no ext.)
+    1: {(0, 1), (1, 2)},
+    # Confounder  Q1+=Q1(self)+Q3, Q2+=Q2(self)+Q3, Q3+=Q3(self only)
+    2: {(0, 2), (1, 2)},
+    # Synergistic  Q1+=Q2+Q3, Q2+=Q2(self only), Q3+=Q3(self only)
+    3: {(0, 1), (0, 2)},
+    # Redundant  Q1+=Q1(self)+Q2+Q3, Q2+=Q2(self)+Q3, Q3+=Q2+Q3(self)
+    4: {(0, 1), (0, 2), (1, 2), (2, 1)},
 }
 
 # Edges shown in the diagram (Case 3 shows arrows even though they're synergistic)
@@ -317,8 +323,8 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
 
     # Two separate GridSpecs so diagram row and bar rows can have independent spacing.
     # The diagram bottom == bar top → zero gap between them; bars keep their own hspace.
-    fig    = plt.figure(figsize=(4.5 * ncases, 10.0 + 3.0 * nvars))
-    top_m  = 0.97
+    fig    = plt.figure(figsize=(4.5 * ncases, 10.0 + 2.0 * nvars))
+    top_m  = 0.99
     bot_m  = 0.04
     # Split point: fraction of figure height where diagrams end / bars begin
     # Diagram units = 11.0, bar units = 3.0 * nvars → diagrams get more height
@@ -329,7 +335,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
                                 wspace=0.45, hspace=0)
     gs_bars = gridspec.GridSpec(nvars, ncases, figure=fig,
                                 top=split, bottom=bot_m,
-                                hspace=0.75, wspace=0.45)
+                                hspace=0.4, wspace=0.45)
 
     for c_idx, case_id in enumerate(case_ids):
         results      = all_raw[case_id]
@@ -375,7 +381,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax.tick_params(width=1.5)
 
             title_lbl = f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$"
-            ax.set_title(title_lbl, fontsize=18, pad=8)
+            ax.set_title(title_lbl, fontsize=18, pad=4)
 
     return fig
 
