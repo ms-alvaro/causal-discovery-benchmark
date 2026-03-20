@@ -11,15 +11,15 @@ results table in `LOG.md` is updated automatically.
 
 The four cases are the *building blocks* of causal interaction from:
 
-> Martínez-Sánchez & Lozano-Durán, *Communications Physics* 9, 15 (2025).
-> <https://doi.org/10.1038/s42005-025-02447-w>
+> Martínez-Sánchez, Arranz & Lozano-Durán, *Nature Communications* 15, 9296 (2024). 
+> <https://doi.org/10.1038/s41467-024-53373-4>
 
 | # | Name | Governing equations (Q1, Q2, Q3) | Expected structure |
 |---|------|----------------------------------|--------------------|
-| 1 | **Mediator**    | Q1 = sin(Q2) + ε, Q2 = cos(Q3) + ε, Q3 = AR(1)       | Q3→Q2→Q1 (no direct Q3→Q1)     |
-| 2 | **Confounder**  | Q1 = sin(Q1+Q3) + ε, Q2 = cos(Q2−Q3) + ε, Q3 = AR(1) | Q3→Q1 and Q3→Q2 (common cause) |
-| 3 | **Synergistic** | Q1 = sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = AR(1)           | Q2×Q3→Q1 (joint effect only)   |
-| 4 | **Redundant**   | Q1 = 0.3Q1 + sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = Q2     | Q2=Q3→Q1 (identical information)|
+| 1 | **Mediator**    | Q1 = sin(Q2) + ε, Q2 = cos(Q3) + ε, Q3 = AR(1)       | Q3→Q2→Q1     |
+| 2 | **Confounder**  | Q1 = sin(Q1+Q3) + ε, Q2 = cos(Q2−Q3) + ε, Q3 = AR(1) | Q3→Q1 and Q3→Q2 |
+| 3 | **Synergistic** | Q1 = sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = AR(1)           | Q2×Q3→Q1   |
+| 4 | **Redundant**   | Q1 = 0.3Q1 + sin(Q2·Q3) + ε, Q2 = AR(1), Q3 = Q2     | Q2=Q3→Q1|
 
 ---
 

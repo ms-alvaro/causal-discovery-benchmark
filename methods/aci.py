@@ -330,7 +330,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
     # diag_overlap: how far (in figure-fraction units) the diagram axes extend
     # *below* split into the bar region. Increase this to eat into the white
     # padding at the bottom of the PNG images and close the visual gap.
-    diag_overlap = 0.25
+    diag_overlap = 0.35
 
     gs_diag = gridspec.GridSpec(1, ncases, figure=fig,
                                 top=top_m, bottom=split - diag_overlap,
@@ -396,6 +396,9 @@ _CRITERIA = {
     4: (1, 0.3, "Q2 (and Q3=Q2) both show high ACI→Q1 (redundant)"),
 }
 
+# Normalized-score threshold above which a non-expected source is flagged spurious.
+_SPURIOUS_THR = 0.25
+
 
 def evaluate(results: list, case: int) -> dict:
     """
@@ -406,7 +409,9 @@ def evaluate(results: list, case: int) -> dict:
       Case 2 — Confounder:  Q3 absolute ACI >> Q2 (Q3 is common cause)
       Case 3 — Synergistic: all absolute ACI < 1e-5 (no individual linear driver)
       Case 4 — Redundant:   both Q2 and Q3 have comparable nonzero ACI
-    All confirmed visually.
+
+    Spurious-link check: any source not in the ground-truth expected set for Q1
+    that exceeds _SPURIOUS_THR of the normalised score causes a FAIL.
     """
     res   = results[0]
     row   = res["aci_row"]
@@ -435,6 +440,12 @@ def evaluate(results: list, case: int) -> dict:
     else:
         passed = None
 
+    # Spurious-link check (only for definite pass/fail cases)
+    expected_q1 = {j for (i, j) in _EXPECTED_CAUSAL.get(case, set()) if i == 0}
+    spurious    = [j for j in sources if j not in expected_q1 and rel[j] > _SPURIOUS_THR]
+    if spurious and passed is not None:
+        passed = False
+
     all_scores = {f"Q{j+1}": float(rel[j]) for j in sources}
 
     return {
@@ -443,5 +454,6 @@ def evaluate(results: list, case: int) -> dict:
         "score":     dom_score,
         "expected":  f"Q{expected_j + 1}" if expected_j is not None else "none",
         "note":      note,
+        "spurious":  [f"Q{j+1}" for j in spurious],
         "all_scores": all_scores,
     }

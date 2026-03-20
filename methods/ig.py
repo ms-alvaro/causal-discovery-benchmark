@@ -178,6 +178,10 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
 
 # ── Pass / fail criteria ─────────────────────────────────────────────────────
 
+# Normalized-score threshold above which a non-expected source is flagged spurious.
+_SPURIOUS_THR = 0.25
+
+
 def evaluate(results: list, case: int) -> dict:
     """
     Evaluate IG results for the Q1 target (results[0]).
@@ -187,6 +191,9 @@ def evaluate(results: list, case: int) -> dict:
       Case 2 — Confounder:  Q3 IG dominates (common cause; Q2 spurious)
       Case 3 — Synergistic: both Q2 and Q3 IG > 0.05 (pairwise IG detects both)
       Case 4 — Redundant:   both Q2 and Q3 IG > 0.05 and comparable (ratio > 0.5)
+
+    Spurious-link check: any source not in the ground-truth expected set for Q1
+    that exceeds _SPURIOUS_THR of the normalised score causes a FAIL.
     """
     _CRITERIA = {
         1: (1, "Q2 dominates IG→Q1 (direct driver in mediator chain)"),
@@ -224,6 +231,12 @@ def evaluate(results: list, case: int) -> dict:
     else:
         passed = None
 
+    # Spurious-link check (only for definite pass/fail cases)
+    expected_q1 = {j for (i, j) in _EXPECTED_CAUSAL.get(case, set()) if i == 0}
+    spurious    = [j for j in sources if j not in expected_q1 and rel[j] > _SPURIOUS_THR]
+    if spurious and passed is not None:
+        passed = False
+
     all_scores = {f"Q{j+1}": float(rel[j]) for j in sources}
 
     return {
@@ -232,5 +245,6 @@ def evaluate(results: list, case: int) -> dict:
         "score":     dom_score,
         "expected":  f"Q{expected_j + 1}" if expected_j is not None else "none",
         "note":      note,
+        "spurious":  [f"Q{j+1}" for j in spurious],
         "all_scores": all_scores,
     }

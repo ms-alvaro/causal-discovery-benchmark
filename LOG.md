@@ -21,7 +21,7 @@ running `python run_benchmarks.py` updates this file automatically.
 
 <!-- RESULTS:START -->
 
-_Last run: 2026-03-19 23:37 — N=200,000_
+_Last run: 2026-03-19 23:49 — N=200,000_
 
 | Method | Case 1: Mediator | Case 2: Confounder | Case 3: Synergistic | Case 4: Redundant |
 | --- | --- | --- | --- | --- |
