@@ -192,8 +192,9 @@ def evaluate(results: list, case: int) -> dict:
       Case 3 — Synergistic: both Q2 and Q3 IG > 0.05 (pairwise IG detects both)
       Case 4 — Redundant:   both Q2 and Q3 IG > 0.05 and comparable (ratio > 0.5)
 
-    Spurious-link check: any source not in the ground-truth expected set for Q1
-    that exceeds _SPURIOUS_THR of the normalised score causes a FAIL.
+    Spurious-link check: applied across ALL targets (Q1⁺, Q2⁺, Q3⁺).
+    Any non-expected source with normalised score > _SPURIOUS_THR and
+    absolute IG > 0.01 causes a FAIL.
     """
     _CRITERIA = {
         1: (1, "Q2 dominates IG→Q1 (direct driver in mediator chain)"),
@@ -223,18 +224,28 @@ def evaluate(results: list, case: int) -> dict:
     elif case == 3:
         passed = bool(abs_scores[1] > 0.05 and abs_scores[2] > 0.05)
     elif case == 4:
-        both_nz    = abs_scores[1] > 0.05 and abs_scores[2] > 0.05
-        comparable = (
-            min(abs_scores[1], abs_scores[2]) / max(abs_scores[1], abs_scores[2]) > 0.5
-        )
+        both_nz  = abs_scores[1] > 0.05 and abs_scores[2] > 0.05
+        max_val  = max(abs_scores[1], abs_scores[2])
+        comparable = max_val > 0 and min(abs_scores[1], abs_scores[2]) / max_val > 0.5
         passed = bool(both_nz and comparable)
     else:
         passed = None
 
-    # Spurious-link check (only for definite pass/fail cases)
-    expected_q1 = {j for (i, j) in _EXPECTED_CAUSAL.get(case, set()) if i == 0}
-    spurious    = [j for j in sources if j not in expected_q1 and rel[j] > _SPURIOUS_THR]
-    if spurious and passed is not None:
+    # Spurious-link check across ALL targets (Q1⁺, Q2⁺, Q3⁺).
+    _ABS_THR = 0.01
+    all_spurious = []
+    for v_idx, res_v in enumerate(results):
+        row_v = res_v["ig_row"]
+        rel_v = _rel_scores(row_v, v_idx)
+        expected_v = {j for (i, j) in _EXPECTED_CAUSAL.get(case, set()) if i == v_idx}
+        for j in range(nvars):
+            if j == v_idx:
+                continue
+            if (j not in expected_v
+                    and rel_v[j] > _SPURIOUS_THR
+                    and float(row_v[j]) > _ABS_THR):
+                all_spurious.append(f"Q{j+1}→Q{v_idx+1}⁺")
+    if all_spurious and passed is not None:
         passed = False
 
     all_scores = {f"Q{j+1}": float(rel[j]) for j in sources}
@@ -245,6 +256,6 @@ def evaluate(results: list, case: int) -> dict:
         "score":     dom_score,
         "expected":  f"Q{expected_j + 1}" if expected_j is not None else "none",
         "note":      note,
-        "spurious":  [f"Q{j+1}" for j in spurious],
+        "spurious":  all_spurious,
         "all_scores": all_scores,
     }

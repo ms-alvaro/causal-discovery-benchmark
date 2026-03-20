@@ -1,0 +1,40 @@
+============================================================
+Method : CGC
+Run    : 2026-03-20 11:06:01
+N      : 200,000
+============================================================
+
+Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
+  Status   : FAIL
+  Dominant : Q2  (score=1.0000)
+  Expected : Q2
+  Note     : Q2 dominates CGC→Q1 (conditioning removes Q3 spurious path)
+  All scores (normalised):
+    Q2      : 1.0000
+  Spurious   : Q1→Q2⁺
+
+Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
+  Status   : PASS
+  Dominant : Q3  (score=0.9983)
+  Expected : Q3
+  Note     : Q3 dominates CGC→Q1 (Q2 link vanishes after conditioning on Q3)
+  All scores (normalised):
+    Q3      : 0.9983
+    Q2      : 0.0017
+
+Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
+  Status   : FAIL
+  Dominant : Q2  (score=0.6342)
+  Expected : none
+  Note     : Linear CGC cannot detect pure synergistic interaction
+  All scores (normalised):
+    Q2      : 0.6342
+    Q3      : 0.3658
+  Spurious   : Q1→Q2⁺
+
+Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
+  Status   : FAIL
+  Dominant : Q2  (score=0.0000)
+  Expected : none
+  Note     : Q2 or Q3 detected (redundancy may suppress one conditionally)
+  All scores (normalised):

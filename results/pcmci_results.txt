@@ -1,0 +1,34 @@
+============================================================
+Method : PCMCI
+Run    : 2026-03-20 11:06:01
+N      : 200,000
+============================================================
+
+Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
+  Status   : FAIL
+  Dominant : Q2  (score=0.0000)
+  Expected : Q2
+  Note     : Q2 dominates PCMCI→Q1 (MCI prunes indirect Q3 path)
+  All scores (normalised):
+
+Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
+  Status   : FAIL
+  Dominant : Q2  (score=0.0000)
+  Expected : Q3
+  Note     : Q3 dominates PCMCI→Q1 (MCI prunes spurious Q2 link)
+  All scores (normalised):
+  Spurious   : Q1→Q3⁺
+
+Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
+  Status   : FAIL
+  Dominant : Q2  (score=0.0000)
+  Expected : none
+  Note     : Both Q2 and Q3 detected via CMI-based PCMCI
+  All scores (normalised):
+
+Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
+  Status   : FAIL
+  Dominant : Q2  (score=0.0000)
+  Expected : none
+  Note     : Both Q2 and Q3 detected (redundant information)
+  All scores (normalised):

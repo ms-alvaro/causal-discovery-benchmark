@@ -1,35 +1,38 @@
 ============================================================
 Method : IG
-Run    : 2026-03-19 23:49:41
+Run    : 2026-03-20 11:06:01
 N      : 200,000
 ============================================================
 
 Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
-  Status   : PASS
+  Status   : FAIL
   Dominant : Q2  (score=0.9685)
   Expected : Q2
   Note     : Q2 dominates IG→Q1 (direct driver in mediator chain)
   All scores (normalised):
     Q2      : 0.9685
     Q3      : 0.0315
+  Spurious   : Q1→Q3⁺
 
 Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
-  Status   : PASS
+  Status   : FAIL
   Dominant : Q3  (score=0.9310)
   Expected : Q3
   Note     : Q3 dominates IG→Q1 (common cause; Q2 link is spurious)
   All scores (normalised):
     Q3      : 0.9310
     Q2      : 0.0690
+  Spurious   : Q1→Q3⁺, Q2→Q3⁺
 
 Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
-  Status   : PASS
+  Status   : FAIL
   Dominant : Q2  (score=0.5660)
   Expected : none
   Note     : Both Q2 and Q3 show nonzero IG→Q1 (synergistic case)
   All scores (normalised):
     Q2      : 0.5660
     Q3      : 0.4340
+  Spurious   : Q1→Q2⁺, Q3→Q2⁺, Q1→Q3⁺, Q2→Q3⁺
 
 Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
   Status   : PASS
