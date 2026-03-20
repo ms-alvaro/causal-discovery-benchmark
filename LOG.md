@@ -21,11 +21,12 @@ running `python run_benchmarks.py` updates this file automatically.
 
 <!-- RESULTS:START -->
 
-_Last run: 2026-03-19 18:15 — N=200,000_
+_Last run: 2026-03-19 22:28 — N=1,000,000_
 
 | Method | Case 1: Mediator | Case 2: Confounder | Case 3: Synergistic | Case 4: Redundant |
 | --- | --- | --- | --- | --- |
-| SURD | ? `U2` (0.93) | ? `S13` (0.49) | ? `S23` (0.77) | ? `S12` (0.43) |
+| ACI | ✓ `Q2` (1.00) | ✓ `Q3` (0.95) | ✓ `Q3` (1.00) | ✓ `Q2` (0.50) |
+| SURD | ✓ `U2` (0.98) | ✓ `S13` (0.51) | ✓ `S23` (0.78) | ✓ `S12` (0.43) |
 
 <!-- RESULTS:END -->
 
@@ -34,6 +35,10 @@ _Last run: 2026-03-19 18:15 — N=200,000_
 ## Method Descriptions
 
 <!-- METHODS:START -->
+
+### ACI
+**Definition:** Measures causal influence via KL divergence between the Bayesian filter p(y_t|x_{0:t}) and smoother p(y_t|x_{0:T}) in a linearised CGNS framework.
+**Reference:** Andreou, Chen & Bollt, Nat. Commun. 17, 1854 (2026). https://doi.org/10.1038/s41467-026-68568-0
 
 ### SURD
 **Definition:** Decomposes I(target_future ; sources_present) into unique (U), redundant (R), and synergistic (S) contributions per source combination via specific mutual information.

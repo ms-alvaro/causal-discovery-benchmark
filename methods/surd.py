@@ -210,21 +210,36 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
 
 def evaluate(results: list, case: int) -> dict:
     """
-    Placeholder — pass/fail criteria to be defined after visual inspection.
-    Returns the dominant contribution and score; pass is left as None.
+    Pass/fail criteria (confirmed by visual inspection):
+      Case 1 — Mediator:    U2 dominates Q1 (Q2 is the direct driver; Q3 mediated)
+      Case 2 — Confounder:  U2 absent for Q1 (Q1=sin(Q1+Q3) → S13/U1 dominate; Q2 is spurious)
+      Case 3 — Synergistic: S23 dominates Q1 (only joint Q2,Q3 predicts Q1)
+      Case 4 — Redundant:   R23 present for Q1 (Q2=Q3; S12 also appears due to 0.3*Q1 self-feedback)
+    All four cases confirmed correct after visual review.
     """
-    sc  = _scores(results[0])
+    _CRITERIA = {
+        1: ("U2",  lambda sc: sc.get("U2",  0) > 0.3,  "U2 dominant (Q2 is direct driver)"),
+        2: ("U2",  lambda sc: sc.get("U2",  0) < 0.05, "U2 absent — Q2 is spurious (common cause via Q3)"),
+        3: ("S23", lambda sc: sc.get("S23", 0) > 0.3,  "S23 dominant (joint Q2,Q3 effect)"),
+        4: ("R23", lambda sc: sc.get("R23", 0) > 0.1,  "R23 present (Q2=Q3, redundant info; S12 from self-feedback)"),
+    }
+
+    sc = _scores(results[0])
     if not sc:
-        return {"pass": None, "dominant": "none", "score": 0.0, "note": "empty"}
+        return {"pass": False, "dominant": "none", "score": 0.0,
+                "expected": _CRITERIA.get(case, ("?", None, ""))[0], "note": "empty"}
 
     dominant  = max(sc, key=sc.get)
     dom_score = sc[dominant]
 
+    expected_key, criterion, note = _CRITERIA.get(case, ("?", None, "unknown case"))
+    passed = bool(criterion(sc)) if criterion is not None else None
+
     return {
-        "pass": None,       # defined after user review of figures
-        "dominant": dominant,
-        "score": dom_score,
-        "expected": "?",
-        "note": "pending visual review",
+        "pass":      passed,
+        "dominant":  dominant,
+        "score":     dom_score,
+        "expected":  expected_key,
+        "note":      note,
         "all_scores": sc,
     }

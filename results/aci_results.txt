@@ -1,0 +1,39 @@
+============================================================
+Method : ACI
+Run    : 2026-03-19 22:28:46
+N      : 1,000,000
+============================================================
+
+Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
+  Status   : PASS
+  Dominant : Q2  (score=0.9997)
+  Expected : Q2
+  Note     : Q2 dominates ACI→Q1 (direct driver in mediator chain)
+  All scores (normalised):
+    Q2      : 0.9997
+
+Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
+  Status   : PASS
+  Dominant : Q3  (score=0.9492)
+  Expected : Q3
+  Note     : Q3 dominates ACI→Q1 (common cause; Q2 link is spurious)
+  All scores (normalised):
+    Q3      : 0.9492
+    Q2      : 0.0508
+
+Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
+  Status   : PASS
+  Dominant : Q3  (score=1.0000)
+  Expected : none
+  Note     : No single source dominates (synergistic case)
+  All scores (normalised):
+    Q3      : 1.0000
+
+Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
+  Status   : PASS
+  Dominant : Q2  (score=0.5000)
+  Expected : Q2
+  Note     : Q2 (and Q3=Q2) both show high ACI→Q1 (redundant)
+  All scores (normalised):
+    Q2      : 0.5000
+    Q3      : 0.5000

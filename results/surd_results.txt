@@ -1,57 +1,54 @@
 ============================================================
 Method : SURD
-Run    : 2026-03-19 18:15:35
-N      : 200,000
+Run    : 2026-03-19 22:28:46
+N      : 1,000,000
 ============================================================
 
 Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
-  Status   : PENDING
-  Dominant : U2  (score=0.9348)
-  Expected : ?
-  Note     : pending visual review
+  Status   : PASS
+  Dominant : U2  (score=0.9825)
+  Expected : U2
+  Note     : U2 dominant (Q2 is direct driver)
   All scores (normalised):
-    U2      : 0.9348
-    S123    : 0.0497
-    R123    : 0.0061
-    S12     : 0.0038
-    R23     : 0.0038
-    S23     : 0.0018
+    U2      : 0.9825
+    S123    : 0.0073
+    R123    : 0.0053
+    R23     : 0.0039
 
 Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
-  Status   : PENDING
-  Dominant : S13  (score=0.4898)
-  Expected : ?
-  Note     : pending visual review
+  Status   : PASS
+  Dominant : S13  (score=0.5113)
+  Expected : U2
+  Note     : U2 absent — Q2 is spurious (common cause via Q3)
   All scores (normalised):
-    S13     : 0.4898
-    U1      : 0.3894
-    S123    : 0.0353
-    S12     : 0.0352
-    R13     : 0.0289
-    R123    : 0.0211
+    S13     : 0.5113
+    U1      : 0.4049
+    R13     : 0.0300
+    S12     : 0.0235
+    R123    : 0.0207
+    S123    : 0.0096
 
 Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
-  Status   : PENDING
-  Dominant : S23  (score=0.7674)
-  Expected : ?
-  Note     : pending visual review
+  Status   : PASS
+  Dominant : S23  (score=0.7823)
+  Expected : S23
+  Note     : S23 dominant (joint Q2,Q3 effect)
   All scores (normalised):
-    S23     : 0.7674
-    R23     : 0.1457
-    S123    : 0.0236
-    R123    : 0.0220
-    S13     : 0.0204
-    S12     : 0.0177
-    U2      : 0.0020
-    U3      : 0.0012
+    S23     : 0.7823
+    R23     : 0.1645
+    R123    : 0.0208
+    S12     : 0.0156
+    S123    : 0.0077
+    S13     : 0.0071
+    U2      : 0.0011
 
 Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
-  Status   : PENDING
-  Dominant : S12  (score=0.4323)
-  Expected : ?
-  Note     : pending visual review
+  Status   : PASS
+  Dominant : S12  (score=0.4304)
+  Expected : R23
+  Note     : R23 present (Q2=Q3, redundant info; S12 from self-feedback)
   All scores (normalised):
-    S12     : 0.4323
-    R23     : 0.4076
-    R123    : 0.1459
-    S13     : 0.0142
+    S12     : 0.4304
+    R23     : 0.4208
+    R123    : 0.1467
+    S13     : 0.0021
