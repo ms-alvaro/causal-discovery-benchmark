@@ -316,11 +316,11 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
     nvars     = all_raw[case_ids[0]][0]["nvars"]
 
     # GridSpec: row 0 = diagram images, rows 1..nvars = bar panels
-    fig = plt.figure(figsize=(4.5 * ncases, 3.8 + 3.0 * nvars))
+    fig = plt.figure(figsize=(4.5 * ncases, 5.5 + 3.0 * nvars))
     gs  = gridspec.GridSpec(
         nvars + 1, ncases,
         figure=fig,
-        height_ratios=[2.0] + [3.0] * nvars,
+        height_ratios=[4.0] + [3.0] * nvars,
         hspace=0.75,
         wspace=0.45,
     )
