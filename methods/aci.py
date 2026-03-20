@@ -322,20 +322,22 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
     nvars     = all_raw[case_ids[0]][0]["nvars"]
 
     # Two separate GridSpecs so diagram row and bar rows can have independent spacing.
-    # The diagram bottom == bar top → zero gap between them; bars keep their own hspace.
     fig    = plt.figure(figsize=(4.5 * ncases, 10.0 + 2.0 * nvars))
     top_m  = 0.99
     bot_m  = 0.04
-    # Split point: fraction of figure height where diagrams end / bars begin
-    # Diagram units = 11.0, bar units = 3.0 * nvars → diagrams get more height
     split  = bot_m + (top_m - bot_m) * (3.0 * nvars) / (11.0 + 3.0 * nvars)
 
+    # diag_overlap: how far (in figure-fraction units) the diagram axes extend
+    # *below* split into the bar region. Increase this to eat into the white
+    # padding at the bottom of the PNG images and close the visual gap.
+    diag_overlap = 0.07
+
     gs_diag = gridspec.GridSpec(1, ncases, figure=fig,
-                                top=top_m, bottom=split,
+                                top=top_m, bottom=split - diag_overlap,
                                 wspace=0.45, hspace=0)
     gs_bars = gridspec.GridSpec(nvars, ncases, figure=fig,
                                 top=split, bottom=bot_m,
-                                hspace=0.4, wspace=0.45)
+                                hspace=0.6, wspace=0.45)
 
     for c_idx, case_id in enumerate(case_ids):
         results      = all_raw[case_id]
@@ -369,7 +371,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax.set_ylim([0, 1])
             ax.set_yticks([0, 1])
             ax.set_xticks(range(nvars))
-            ax.set_xticklabels([f"$Q_{j+1}$" for j in range(nvars)], fontsize=20)
+            ax.set_xticklabels([f"$Q_{j+1}$" for j in range(nvars)], fontsize=18)
             ax.tick_params(axis="y", labelsize=20)
 
             ax.set_ylabel("")
@@ -381,7 +383,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax.tick_params(width=1.5)
 
             title_lbl = f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$"
-            ax.set_title(title_lbl, fontsize=18, pad=4)
+            ax.set_title(title_lbl, fontsize=20, pad=16)
 
     return fig
 
