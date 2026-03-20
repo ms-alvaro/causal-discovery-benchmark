@@ -315,15 +315,21 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
     ncases    = len(case_ids)
     nvars     = all_raw[case_ids[0]][0]["nvars"]
 
-    # GridSpec: row 0 = diagram images, rows 1..nvars = bar panels
-    fig = plt.figure(figsize=(4.5 * ncases, 7.5 + 3.0 * nvars))
-    gs  = gridspec.GridSpec(
-        nvars + 1, ncases,
-        figure=fig,
-        height_ratios=[7.0] + [3.0] * nvars,
-        hspace=0.0,
-        wspace=0.45,
-    )
+    # Two separate GridSpecs so diagram row and bar rows can have independent spacing.
+    # The diagram bottom == bar top → zero gap between them; bars keep their own hspace.
+    fig    = plt.figure(figsize=(4.5 * ncases, 10.0 + 3.0 * nvars))
+    top_m  = 0.97
+    bot_m  = 0.04
+    # Split point: fraction of figure height where diagrams end / bars begin
+    # Diagram units = 11.0, bar units = 3.0 * nvars → diagrams get more height
+    split  = bot_m + (top_m - bot_m) * (3.0 * nvars) / (11.0 + 3.0 * nvars)
+
+    gs_diag = gridspec.GridSpec(1, ncases, figure=fig,
+                                top=top_m, bottom=split,
+                                wspace=0.45, hspace=0)
+    gs_bars = gridspec.GridSpec(nvars, ncases, figure=fig,
+                                top=split, bottom=bot_m,
+                                hspace=0.75, wspace=0.45)
 
     for c_idx, case_id in enumerate(case_ids):
         results      = all_raw[case_id]
@@ -331,7 +337,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
         expected_set = _EXPECTED_CAUSAL.get(case_id, set())
 
         # ── Diagram image row ──────────────────────────────────────────────
-        ax_diag = fig.add_subplot(gs[0, c_idx])
+        ax_diag = fig.add_subplot(gs_diag[0, c_idx])
         png_path = _DIAGRAM_PNG.get(case_id)
         if png_path and png_path.exists():
             img = mpimg.imread(str(png_path))
@@ -340,7 +346,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
 
         # ── Bar rows ───────────────────────────────────────────────────────
         for v_idx, res in enumerate(results):
-            ax  = fig.add_subplot(gs[v_idx + 1, c_idx])
+            ax  = fig.add_subplot(gs_bars[v_idx, c_idx])
             row = res["aci_row"]           # absolute mean ACI, shape (nvars,)
             rel = _rel_scores(row, v_idx)  # normalised, self = 0
 
@@ -357,8 +363,8 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax.set_ylim([0, 1])
             ax.set_yticks([0, 1])
             ax.set_xticks(range(nvars))
-            ax.set_xticklabels([f"$Q_{j+1}$" for j in range(nvars)], fontsize=16)
-            ax.tick_params(axis="y", labelsize=16)
+            ax.set_xticklabels([f"$Q_{j+1}$" for j in range(nvars)], fontsize=20)
+            ax.tick_params(axis="y", labelsize=20)
 
             ax.set_ylabel("")
             if c_idx > 0:
@@ -369,7 +375,7 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
             ax.tick_params(width=1.5)
 
             title_lbl = f"$\\Delta I_{{(\\cdot)\\rightarrow Q_{v_idx+1}^+}}$"
-            ax.set_title(title_lbl, fontsize=14, pad=8)
+            ax.set_title(title_lbl, fontsize=18, pad=8)
 
     return fig
 
