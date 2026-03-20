@@ -9,8 +9,8 @@ Definition of causality:
     of the target carry information about the past state of the source.
 
 Reference:
-    Martínez-Sánchez, Arranz & Lozano-Durán, Nat. Commun. 15, 9296 (2024).
-    https://doi.org/10.1038/s41467-024-53373-4
+    Andreou, Chen & Bollt, Nat. Commun. 17, 1854 (2026).
+    https://doi.org/10.1038/s41467-026-68568-0
 """
 import os
 import sys
@@ -38,8 +38,8 @@ DEFINITION = (
     "p(y_t|x_{0:t}) and smoother p(y_t|x_{0:T}) in a linearised CGNS framework."
 )
 REFERENCE  = (
-    "Martínez-Sánchez, Arranz & Lozano-Durán, Nat. Commun. 15, 9296 (2024). "
-    "https://doi.org/10.1038/s41467-024-53373-4"
+    "Andreou, Chen & Bollt, Nat. Commun. 17, 1854 (2026). "
+    "https://doi.org/10.1038/s41467-026-68568-0"
 )
 
 # ── Causal-graph metadata ───────────────────────────────────────────────────
@@ -322,15 +322,15 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
     nvars     = all_raw[case_ids[0]][0]["nvars"]
 
     # Two separate GridSpecs so diagram row and bar rows can have independent spacing.
-    fig    = plt.figure(figsize=(4.5 * ncases, 10.0 + 2.0 * nvars))
+    fig    = plt.figure(figsize=(4.5 * ncases, 12.0 + 2.0 * nvars))
     top_m  = 0.99
     bot_m  = 0.04
-    split  = bot_m + (top_m - bot_m) * (3.0 * nvars) / (11.0 + 3.0 * nvars)
+    split  = bot_m + (top_m - bot_m) * (3.0 * nvars) / (15.0 + 3.0 * nvars)
 
     # diag_overlap: how far (in figure-fraction units) the diagram axes extend
     # *below* split into the bar region. Increase this to eat into the white
     # padding at the bottom of the PNG images and close the visual gap.
-    diag_overlap = 0.5
+    diag_overlap = 0.25
 
     gs_diag = gridspec.GridSpec(1, ncases, figure=fig,
                                 top=top_m, bottom=split - diag_overlap,

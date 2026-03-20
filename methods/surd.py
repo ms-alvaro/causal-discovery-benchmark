@@ -7,8 +7,8 @@ Definition of causality:
     combination, using a specific mutual information framework.
 
 Reference:
-    Martínez-Sánchez & Lozano-Durán, Commun. Phys. 9, 15 (2025).
-    https://doi.org/10.1038/s42005-025-02447-w
+    Martínez-Sánchez, Arranz & Lozano-Durán, Nat. Commun. 15, 9296 (2024).
+    https://doi.org/10.1038/s41467-024-53373-4
 """
 import os
 import sys
@@ -34,8 +34,8 @@ DEFINITION = (
     "and synergistic (S) contributions per source combination via specific mutual information."
 )
 REFERENCE  = (
-    "Martínez-Sánchez & Lozano-Durán, Commun. Phys. 9, 15 (2025). "
-    "https://doi.org/10.1038/s42005-025-02447-w"
+    "Martínez-Sánchez, Arranz & Lozano-Durán, Nat. Commun. 15, 9296 (2024). "
+    "https://doi.org/10.1038/s41467-024-53373-4"
 )
 
 # SURD brand colours (lightened 40%)
