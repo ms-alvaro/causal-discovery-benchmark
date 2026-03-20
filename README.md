@@ -30,11 +30,11 @@ The four cases are the *building blocks* of causal interaction from:
 | ACI    | ✗ᵃ | ✗  | ✓  | ✗  | ✓  | ✓  | ✗  |
 | CCM    | ✗  | ✓  | ✗ᵇ | ✓  | ✗  | ✗ᶜ | ✗  |
 | CGC    | ✓  | ✗  | ✓  | ✗  | ✗  | ✓  | ✓  |
-| CTE    | ✓  | ✓✓ | ✗  | ✗  | ✓  | ✓  | ✓  |
+| CTE    | ✓  | ✓  | ✗  | ✗  | ✓  | ✓  | ✓  |
 | IG     | ✗ᵃ | ✓  | ✓  | ✗  | ✗  | ✓  | ✗  |
 | LIF    | ✓  | ✗  | ✓  | ✓  | ✗  | ✓  | ✓  |
-| PCMCI  | ✓  | ✓✓ | ✗ᵈ | ✗  | ✓  | ✓  | ✓  |
-| SURD   | ✓  | ✓  | ✓  | ✓  | ✓✓ | ✓  | ✓  |
+| PCMCI  | ✓  | ✓  | ✗ᵈ | ✗  | ✓  | ✓  | ✓  |
+| SURD   | ✓  | ✓  | ✓  | ✓  | ✓  | ✓  | ✓  |
 
 **Column definitions:** *Multivariate* — conditions on all observed variables simultaneously; *Nonlinear* — detects nonlinear dependencies; *Stochastic* — designed for nondeterministic processes; *Contemporaneous* — detects instantaneous (lag-0) links; *Leak* — estimates information from unobserved variables; *Time-delay* — detects time-lagged causal links; *Self-causation* — detects auto-causal (self-lagged) effects.
 
