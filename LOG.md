@@ -8,12 +8,12 @@ running `python run_benchmarks.py` updates this file automatically.
 
 ## Benchmark Cases
 
-| # | Name | Description | Pass criterion for Q1 |
-|---|------|-------------|----------------------|
-| 1 | Mediator    | Q3→Q2→Q1 (no direct Q3→Q1)                | `U2` dominates   |
-| 2 | Confounder  | Q3→Q1 and Q3→Q2 (common cause)            | `U2` must be absent (spurious) |
-| 3 | Synergistic | Q2×Q3→Q1 (interaction required)           | `S23` dominates  |
-| 4 | Redundant   | Q2=Q3→Q1 (identical information)          | `R23` dominates  |
+| # | Name | Description | Q1⁺ expected sources | Q2⁺ expected sources | Q3⁺ expected sources |
+|---|------|-------------|----------------------|----------------------|----------------------|
+| 1 | Mediator    | Q3→Q2→Q1 (no direct Q3→Q1)       | Q2                | Q3                | Q3 (self)         |
+| 2 | Confounder  | Q3→Q1 and Q3→Q2 (common cause)   | Q1 (self), Q3     | Q2 (self), Q3     | Q3 (self)         |
+| 3 | Synergistic | Q2×Q3→Q1 (interaction required)  | Q2, Q3            | Q2 (self)         | Q3 (self)         |
+| 4 | Redundant   | Q2=Q3→Q1 (identical information) | Q1 (self), Q2, Q3 | Q2 (self), Q3     | Q2, Q3 (self)     |
 
 ---
 
@@ -21,12 +21,12 @@ running `python run_benchmarks.py` updates this file automatically.
 
 <!-- RESULTS:START -->
 
-_Last run: 2026-03-19 22:28 — N=1,000,000_
+_Last run: 2026-03-19 23:18 — N=200,000_
 
 | Method | Case 1: Mediator | Case 2: Confounder | Case 3: Synergistic | Case 4: Redundant |
 | --- | --- | --- | --- | --- |
-| ACI | ✓ `Q2` (1.00) | ✓ `Q3` (0.95) | ✓ `Q3` (1.00) | ✓ `Q2` (0.50) |
-| SURD | ✓ `U2` (0.98) | ✓ `S13` (0.51) | ✓ `S23` (0.78) | ✓ `S12` (0.43) |
+| ACI | ✓ `Q2` (1.00) | ✓ `Q3` (0.95) | ✓ `Q2` (0.57) | ✓ `Q2` (0.50) |
+| SURD | ✓ `U2` (0.93) | ✓ `S13` (0.49) | ✓ `S23` (0.77) | ✓ `S12` (0.43) |
 
 <!-- RESULTS:END -->
 
@@ -42,7 +42,7 @@ _Last run: 2026-03-19 22:28 — N=1,000,000_
 
 ### SURD
 **Definition:** Decomposes I(target_future ; sources_present) into unique (U), redundant (R), and synergistic (S) contributions per source combination via specific mutual information.
-**Reference:** Martínez-Sánchez & Lozano-Durán, Commun. Phys. 9, 15 (2025). https://doi.org/10.1038/s42005-025-02447-w
+**Reference:** Martínez-Sánchez, Arranz & Lozano-Durán, Nat. Commun. 15, 9296 (2024). https://doi.org/10.1038/s41467-024-53373-4
 
 
 <!-- METHODS:END -->
