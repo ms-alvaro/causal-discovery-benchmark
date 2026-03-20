@@ -36,7 +36,7 @@ The four cases are the *building blocks* of causal interaction from:
 | PCMCI  | ✓  | ✓✓ | ✗ᵈ | ✗  | ✓  | ✓  | ✓  |
 | SURD   | ✓  | ✓  | ✓  | ✓  | ✓✓ | ✓  | ✓  |
 
-**Column definitions:** *Multivariate* — conditions on all observed variables simultaneously; *Nonlinear* — detects nonlinear dependencies (✓✓ = fully nonparametric); *Stochastic* — designed for nondeterministic processes; *Contemporaneous* — detects instantaneous (lag-0) links; *Leak* — estimates information from unobserved variables (✓✓ = explicit decomposition); *Time-delay* — detects time-lagged causal links; *Self-causation* — detects auto-causal (self-lagged) effects.
+**Column definitions:** *Multivariate* — conditions on all observed variables simultaneously; *Nonlinear* — detects nonlinear dependencies; *Stochastic* — designed for nondeterministic processes; *Contemporaneous* — detects instantaneous (lag-0) links; *Leak* — estimates information from unobserved variables; *Time-delay* — detects time-lagged causal links; *Self-causation* — detects auto-causal (self-lagged) effects.
 
 ᵃ Inherently pairwise (one source, one target at a time); multivariate inference requires all pairwise comparisons.
 ᵇ CCM aims to reconstruct the attractor manifold, making it potentially effective for stochastic systems; however, increased dynamical noise complicates manifold reconstruction.
