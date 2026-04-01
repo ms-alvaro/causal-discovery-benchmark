@@ -27,14 +27,14 @@ The four cases are the *building blocks* of causal interaction from:
 
 | Method | Multivariate | Nonlinear | Stochastic | Contemporaneous | Leak | Time-delay | Self-causation |
 |--------|:-----------:|:---------:|:----------:|:---------------:|:----:|:----------:|:--------------:|
-| ACI    | ✗ᵃ | ✗  | ✓  | ✗  | ✓  | ✓  | ✗  |
-| CCM    | ✗  | ✓  | ✗ᵇ | ✓  | ✗  | ✗ᶜ | ✗  |
 | CGC    | ✓  | ✗  | ✓  | ✗  | ✗  | ✓  | ✓  |
 | CTE    | ✓  | ✓  | ✗  | ✗  | ✓  | ✓  | ✓  |
-| IG     | ✗ᵃ | ✓  | ✓  | ✗  | ✗  | ✓  | ✗  |
+| CCM    | ✗  | ✓  | ✗ᵇ | ✓  | ✗  | ✗ᶜ | ✗  |
 | LIF    | ✓  | ✗  | ✓  | ✓  | ✗  | ✓  | ✓  |
 | PCMCI  | ✓  | ✓  | ✗ᵈ | ✗  | ✓  | ✓  | ✓  |
+| IG     | ✗ᵃ | ✓  | ✓  | ✗  | ✗  | ✓  | ✗  |
 | SURD   | ✓  | ✓  | ✓  | ✓  | ✓  | ✓  | ✓  |
+| ACI    | ✗ᵃ | ✗  | ✓  | ✗  | ✓  | ✓  | ✗  |
 
 **Column definitions:** *Multivariate* — conditions on all observed variables simultaneously; *Nonlinear* — detects nonlinear dependencies; *Stochastic* — designed for nondeterministic processes; *Contemporaneous* — detects instantaneous (lag-0) links; *Leak* — estimates information from unobserved variables; *Time-delay* — detects time-lagged causal links; *Self-causation* — detects auto-causal (self-lagged) effects.
 
