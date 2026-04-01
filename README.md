@@ -45,6 +45,17 @@ The four cases are the *building blocks* of causal interaction from:
 
 For CGC, CTE, CCM, PCMCI, and SURD, values follow Table 2 of Martínez-Sánchez, Arranz & Lozano-Durán, *Nat. Commun.* 15, 9296 (2024).
 
+### Implemented methods
+
+- **CGC**: Conditional Granger Causality. Tests whether the past of one variable improves prediction of another beyond the rest of the observed system (Geweke, *JASA* 77, 304-313, 1982; Barnett & Seth, *J. Neurosci. Methods* 223, 50-68, 2014).
+- **CTE**: Conditional Transfer Entropy. Measures the unique predictive information that one source contributes to a target's future after conditioning on the remaining variables (Schreiber, *Phys. Rev. Lett.* 85, 461-464, 2000; Barnett, Barrett & Seth, *Phys. Rev. Lett.* 103, 238701, 2009).
+- **CCM**: Convergent Cross-Mapping. Infers causality by reconstructing one variable from the delay-embedded shadow manifold of another (Sugihara et al., *Science* 338, 496-500, 2012).
+- **LIF**: Liang's Information Flow. Estimates directed entropy transfer rates, including a multivariate form conditioned on the rest of the system (Liang, *Phys. Rev. E* 90, 052150, 2014; Liang, *Entropy* 23, 679, 2021; Liang & Kleeman, *Phys. Rev. Lett.* 95, 244101, 2005).
+- **PCMCI**: Peter-Clark Momentary Conditional Independence. Uses PC-style parent selection followed by momentary conditional independence tests based on conditional mutual information (Runge et al., *Sci. Adv.* 5, eaau4996, 2019).
+- **IG**: Information Gain. Quantifies how much adding a candidate cause reduces the information imbalance for predicting the target's future state (Del Tatto, Fortunato, Bueti & Laio, *PNAS* 121, e2317256121, 2024; DOI: [10.1073/pnas.2317256121](https://doi.org/10.1073/pnas.2317256121)).
+- **SURD**: Synergistic-Unique-Redundant Decomposition. Decomposes predictive information into unique, redundant, and synergistic source contributions (Martínez-Sánchez, Arranz & Lozano-Durán, *Nat. Commun.* 15, 9296, 2024; DOI: [10.1038/s41467-024-53373-4](https://doi.org/10.1038/s41467-024-53373-4)).
+- **ACI**: Assimilative Causal Inference. Measures causal influence through the divergence between Bayesian filter and smoother distributions in a linearised CGNS setting (Andreou, Chen & Bollt, *Nat. Commun.* 17, 1854, 2026; DOI: [10.1038/s41467-026-68568-0](https://doi.org/10.1038/s41467-026-68568-0)).
+
 ---
 
 ## Results
