@@ -26,7 +26,7 @@ The four cases are the *building blocks* of causal interaction from:
 ## Methods
 
 | Method | Multivariate | Nonlinear | Stochastic | Contemporaneous | Leak | Time-delay | Self-causation |
-|--------|:-----------:|:---------:|:----------:|:---------------:|:----:|:----------:|:--------------:|
+|--------|:-----------:|:---------:|:----------:|:---------------:|:-------:|:------------:|:-----------------:|
 | CGC    | ✓  | ✗  | ✓  | ✗  | ✗  | ✓  | ✓  |
 | CTE    | ✓  | ✓  | ✗  | ✗  | ✓  | ✓  | ✓  |
 | CCM    | ✗  | ✓  | ✗ᵇ | ✓  | ✗  | ✗ᶜ | ✗  |
