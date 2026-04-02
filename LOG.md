@@ -21,15 +21,15 @@ running `python run_benchmarks.py` updates this file automatically.
 
 <!-- RESULTS:START -->
 
-_Last run: 2026-04-02 10:33 — N=200,000 — updated: CGC, CTE, CCM, LIF, PCMCI, IG, SURD, ACI / Mediator, Confounder, Synergistic, Redundant_
+_Last run: 2026-04-02 11:40 — N=200,000 — updated: CGC, CTE, CCM, LIF, PCMCI, IG, SURD, ACI / Mediator, Confounder, Synergistic, Redundant_
 
 | Method | Case 1: Mediator | Case 2: Confounder | Case 3: Synergistic | Case 4: Redundant |
 | --- | --- | --- | --- | --- |
-| CGC | ✗ `Q2` (1.00) ⚠`Q1→Q2⁺` | ✓ `Q3` (1.00) | ✗ `Q2` (0.63) ⚠`Q1→Q2⁺` | ✗ `Q2` (0.00) |
-| CTE | ✗ `Q2` (1.00) ⚠`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q3` (0.99) ⚠`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q3` (0.51) ⚠`Q1→Q2⁺`,`Q3→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q2` (0.00) ⚠`Q1→Q2⁺`,`Q1→Q3⁺` |
-| CCM | ✗ `Q3` (0.51) ⚠`Q1→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q2` (0.72) ⚠`Q2→Q1⁺`,`Q1→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q2` (1.00) | ✗ `Q2` (0.00) ⚠`Q1→Q2⁺`,`Q1→Q3⁺` |
+| CGC | ✓ | ✗ | ✓ | ✗ |
+| CTE | ✓ | ✓ | ✓ | ✗ |
+| CCM | ✗ | ✗ | ✗ | ✗ |
 | LIF | ✗ `Q2` (1.00) ⚠`Q1→Q2⁺` | ✗ `Q3` (1.00) ⚠`Q2→Q3⁺` | ✗ `Q2` (0.00) | ✗ `Q2` (0.00) |
-| PCMCI | ✗ `Q2` (0.00) | ✗ `Q2` (0.00) ⚠`Q1→Q3⁺` | ✗ `Q2` (0.00) | ✗ `Q2` (0.00) |
+| PCMCI | ✗ | ✗ | ✗ | ✗ |
 | IG | ✗ `Q2` (0.97) ⚠`Q1→Q3⁺` | ✗ `Q3` (0.93) ⚠`Q1→Q3⁺`,`Q2→Q3⁺` | ✗ `Q2` (0.57) ⚠`Q1→Q2⁺`,`Q3→Q2⁺`,`Q1→Q3⁺`,`Q2→Q3⁺` | ✓ `Q2` (0.50) |
 | SURD | ✓ `U2` (0.93) | ✓ `S13` (0.49) | ✓ `S23` (0.77) | ✓ `S12` (0.43) |
 | ACI | ✓ `Q2` (1.00) | ✗ `Q3` (0.95) ⚠`Q1→Q2⁺`,`Q1→Q3⁺` | ✓ `Q2` (0.57) | ✓ `Q2` (0.50) |
