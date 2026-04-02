@@ -153,6 +153,7 @@ def run_all(N: int, nbins: int, nlag: int, seed: int,
 
     selected_cases = _normalise_case_selection(case_names)
     _validate_case_selection(selected_cases)
+    generated_cache = False
 
     all_results = {}   # all_results[method_key][case_id] = eval dict
     all_raw     = {}   # all_raw[method_key][case_id] = raw results list
@@ -168,8 +169,12 @@ def run_all(N: int, nbins: int, nlag: int, seed: int,
             X = load_data(case_id, N)
             print(f"  (loaded from cache)")
         except FileNotFoundError:
-            X = case_info["fn"](N + 5_000)
-            X = X[:, 5_000:]
+            if not generated_cache:
+                print(f"  (cache miss for N={N:,}; generating and saving datasets)")
+                generate_and_save(N, seed)
+                generated_cache = True
+            X = load_data(case_id, N)
+            print(f"  (generated and loaded from cache)")
 
         for key, method in methods.items():
             print(f"  [{method.NAME}] running...", end=" ", flush=True)
@@ -221,10 +226,7 @@ def _replace_section(text, start_marker, end_marker, new_content):
 
 
 def _format_result_cell(ev: dict) -> str:
-    mark = "✓" if ev["pass"] is True else ("✗" if ev["pass"] is False else "?")
-    spur = ev.get("spurious", [])
-    spur_str = f" ⚠`{'`,`'.join(spur)}`" if spur else ""
-    return f"{mark} `{ev['dominant']}` ({ev['score']:.2f}){spur_str}"
+    return "✓" if ev["pass"] is True else ("✗" if ev["pass"] is False else "?")
 
 
 def _parse_existing_results_table(text: str) -> dict:

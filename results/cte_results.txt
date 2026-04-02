@@ -1,38 +1,33 @@
 ============================================================
 Method : CTE
-Run    : 2026-04-02 10:33:48
-N      : 200,000
+Run    : 2026-04-02 10:57:46
+N      : 5,000,000
 ============================================================
 
 Case 1: Mediator  (Q3→Q2→Q1 (no direct Q3→Q1))
-  Status   : FAIL
-  Dominant : Q2  (score=0.9974)
+  Status   : PASS
+  Dominant : Q2  (score=0.9833)
   Expected : Q2
   Note     : Q2 dominates CTE→Q1 (conditioning removes Q3 spurious path)
   All scores (normalised):
-    Q2      : 0.9974
-    Q3      : 0.0026
-  Spurious   : Q1→Q3⁺, Q2→Q3⁺
+    Q2      : 0.9833
 
 Case 2: Confounder  (Q3→Q1 and Q3→Q2 (common cause, no direct Q1↔Q2 link))
-  Status   : FAIL
-  Dominant : Q3  (score=0.9933)
+  Status   : PASS
+  Dominant : Q3  (score=0.4303)
   Expected : Q3
   Note     : Q3 dominates CTE→Q1 (Q2 link vanishes after conditioning on Q3)
   All scores (normalised):
-    Q3      : 0.9933
-    Q2      : 0.0067
-  Spurious   : Q1→Q3⁺, Q2→Q3⁺
+    Q3      : 0.4303
 
 Case 3: Synergistic  (Q2×Q3→Q1 (synergistic interaction))
-  Status   : FAIL
-  Dominant : Q3  (score=0.5097)
+  Status   : PASS
+  Dominant : Q3  (score=0.7555)
   Expected : none
   Note     : Both Q2 and Q3 detected via histogram CTE (nonparametric)
   All scores (normalised):
-    Q3      : 0.5097
-    Q2      : 0.4903
-  Spurious   : Q1→Q2⁺, Q3→Q2⁺, Q1→Q3⁺, Q2→Q3⁺
+    Q3      : 0.7555
+    Q2      : 0.7547
 
 Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
   Status   : FAIL
@@ -40,4 +35,3 @@ Case 4: Redundant  (Q2=Q3→Q1 (redundant information))
   Expected : none
   Note     : Q2 or Q3 detected (redundancy may suppress one conditionally)
   All scores (normalised):
-  Spurious   : Q1→Q2⁺, Q1→Q3⁺

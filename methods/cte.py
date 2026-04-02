@@ -46,10 +46,10 @@ REFERENCE  = (
 )
 
 _EXPECTED_CAUSAL = {
-    1: {(0, 1), (1, 2)},
-    2: {(0, 2), (1, 2)},
-    3: {(0, 1), (0, 2)},
-    4: {(0, 1), (0, 2), (1, 2), (2, 1)},
+    1: {(0, 1), (1, 2), (2, 2)},
+    2: {(0, 0), (0, 2), (1, 1), (1, 2), (2, 2)},
+    3: {(0, 1), (0, 2), (1, 1), (2, 2)},
+    4: {(0, 0), (0, 1), (0, 2), (1, 1), (1, 2), (2, 1), (2, 2)},
 }
 _DIAGRAM_PNG = {
     1: Path(__file__).parent.parent / "benchmarks" / "figures" / "mediator.png",
@@ -59,21 +59,20 @@ _DIAGRAM_PNG = {
 }
 _BAR_COLOR     = "#D8D8D8"
 _HATCH_PATTERN = "///"
+_MISS_COLOR    = "#C0392B"
+_MISS_ALPHA    = 0.25
 _SPURIOUS_THR  = 0.25
 _ABS_THR       = 1e-6
 
 
 def run(X: np.ndarray, nbins: int = 8, nlag: int = 1) -> list:
-    cte_matrix = cte_pairwise(X, nbins=nbins, nlag=nlag)
+    cte_matrix, mi_total = cte_pairwise(X, nbins=nbins, nlag=nlag)
     nvars = X.shape[0]
-    return [{"cte_row": cte_matrix[i], "nvars": nvars} for i in range(nvars)]
+    return [{"cte_row": cte_matrix[i], "mi_total": mi_total[i], "nvars": nvars} for i in range(nvars)]
 
 
-def _rel_scores(row: np.ndarray, self_idx: int) -> np.ndarray:
-    r = row.copy()
-    r[self_idx] = 0.0
-    total = r.sum()
-    return r / total if total > 0 else r
+def _rel_scores(row: np.ndarray, mi_total: float) -> np.ndarray:
+    return row / mi_total if mi_total > 0 else row.copy()
 
 
 def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
@@ -105,15 +104,15 @@ def plot_all_cases(all_raw: dict, case_info: dict) -> plt.Figure:
         for v_idx, res in enumerate(results):
             ax  = fig.add_subplot(gs_bars[v_idx, c_idx])
             row = res["cte_row"]
-            rel = _rel_scores(row, v_idx)
+            rel = _rel_scores(row, res["mi_total"])
 
             for j in range(nvars):
-                if j == v_idx:
-                    pass
-                else:
-                    hatch = _HATCH_PATTERN if (v_idx, j) in expected_set else ""
-                    ax.bar(j, rel[j], color=_BAR_COLOR, edgecolor="black",
-                           linewidth=1.5, hatch=hatch, zorder=2, width=0.8)
+                if (v_idx, j) in expected_set and float(row[j]) <= _ABS_THR:
+                    ax.bar(j, 1.0, color=_MISS_COLOR, edgecolor="none",
+                           alpha=_MISS_ALPHA, zorder=1, width=0.8)
+                hatch = _HATCH_PATTERN if (v_idx, j) in expected_set else ""
+                ax.bar(j, rel[j], color=_BAR_COLOR, edgecolor="black",
+                       linewidth=1.5, hatch=hatch, zorder=2, width=0.8)
 
             ax.set_xlim(-0.5, nvars - 0.5)
             ax.set_ylim([0, 1])
@@ -159,7 +158,7 @@ def evaluate(results: list, case: int) -> dict:
     dom_lbl    = f"Q{dominant_j + 1}"
     dom_abs    = abs_scores[dominant_j]
 
-    rel       = _rel_scores(row, 0)
+    rel       = _rel_scores(row, res["mi_total"])
     dom_score = float(rel[dominant_j])
 
     expected_j, note = _CRITERIA.get(case, (None, "unknown"))
@@ -177,7 +176,7 @@ def evaluate(results: list, case: int) -> dict:
     all_spurious = []
     for v_idx, res_v in enumerate(results):
         row_v = res_v["cte_row"]
-        rel_v = _rel_scores(row_v, v_idx)
+        rel_v = _rel_scores(row_v, res_v["mi_total"])
         expected_v = {j for (i, j) in _EXPECTED_CAUSAL.get(case, set()) if i == v_idx}
         for j in range(nvars):
             if j == v_idx:

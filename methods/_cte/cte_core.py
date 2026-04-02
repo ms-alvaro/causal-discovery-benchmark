@@ -9,32 +9,56 @@ Implementation based on:
     Martínez-Sánchez, Arranz & Lozano-Durán, Nat. Commun. 15, 9296 (2024).
     https://doi.org/10.1038/s41467-024-53373-4
 
-For each ordered pair (source j → target i), with single lag ΔT:
+The implementation below follows the multivariate information-flux
+decomposition:
 
-  CTE_{j→i} = H(Q_i⁺ | Q̄_j) − H(Q_i⁺ | Q)
+  T(j) = H(Q_i⁺ | Q_not_j) - H(Q_i⁺ | Q_all)
 
-where:
-  Q   = [Q_1(t−ΔT), …, Q_N(t−ΔT)]  (all variables at lag ΔT)
-  Q̄_j = Q with Q_j removed
-  Q_i⁺ = Q_i(t)
-
-Entropy is estimated via histogram (uniform binning).
-CTE ≥ 0 by construction (clamped at 0 if negative due to estimation noise).
+for every source subset j, followed by inclusion-exclusion subtraction so each
+subset contribution is non-overlapping. The benchmark wrapper still reports the
+singleton terms T((j,)), which coincide with pairwise conditional transfer
+entropy from source j to target i.
 """
+
+from itertools import chain as ichain
+from itertools import combinations as icmb
 
 import numpy as np
 
-
-def _entropy(data: np.ndarray, nbins: int) -> float:
-    """Shannon entropy H(data) in bits, estimated by uniform histogramming."""
-    hist, _ = np.histogramdd(data, bins=nbins)
-    p = hist.ravel()
-    p = p[p > 0].astype(float)
-    p /= p.sum()
-    return float(-np.sum(p * np.log2(p)))
+from _surd import it_tools as it
 
 
-def cte_pairwise(X: np.ndarray, nbins: int = 0, nlag: int = 1) -> np.ndarray:
+def information_flux(p: np.ndarray) -> dict:
+    """
+    Compute the full information-flux decomposition from present-time sources
+    to a future target, given a joint PDF p(target_future, sources_present...).
+
+    Returns
+    -------
+    dict
+        Maps tuples of source indices (1-based within p dimensions) to their
+        flux into the target variable in dimension 0.
+    """
+    num_dims = p.ndim
+    source_inds = tuple(range(1, num_dims))
+    flux = {}
+
+    for size in source_inds:
+        for subset in icmb(source_inds, size):
+            non_subset = tuple(idx for idx in source_inds if idx not in subset)
+            h_without_subset = it.cond_entropy(p, (0,), non_subset)
+            h_with_all = it.cond_entropy(p, (0,), source_inds)
+            flux[subset] = h_without_subset - h_with_all
+
+    for size in source_inds:
+        for subset in icmb(source_inds, size):
+            lower_orders = [list(icmb(subset, k)) for k in range(1, len(subset))]
+            flux[subset] -= sum(flux[sub] for sub in ichain.from_iterable(lower_orders))
+
+    return flux
+
+
+def cte_pairwise(X: np.ndarray, nbins: int = 0, nlag: int = 1) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute CTE for every ordered pair (source j → target i).
 
@@ -47,7 +71,9 @@ def cte_pairwise(X: np.ndarray, nbins: int = 0, nlag: int = 1) -> np.ndarray:
     Returns
     -------
     cte_matrix : np.ndarray, shape (nvars, nvars)
-        cte_matrix[i, j] = CTE_{j→i}.  Diagonal = 0.
+        cte_matrix[i, j] = CTE_{j→i}, including self-flux on the diagonal.
+    mi_total : np.ndarray, shape (nvars,)
+        mi_total[i] = I(Q_i⁺ ; Q), where Q contains all present-time variables.
     """
     nvars, N = X.shape
     n  = N - nlag
@@ -57,30 +83,21 @@ def cte_pairwise(X: np.ndarray, nbins: int = 0, nlag: int = 1) -> np.ndarray:
     ndim  = nvars + 1          # joint space dimension (target future + all past vars)
     nbins = max(3, int((n / 10) ** (1.0 / ndim)))
 
-    past   = X[:, :n].T          # (n, nvars) — all variables at t
-    future = X[:, nlag:].T       # (n, nvars) — all variables at t+nlag
+    past   = X[:, :n]
+    future = X[:, nlag:]
 
     cte_matrix = np.zeros((nvars, nvars))
+    mi_total = np.zeros(nvars)
 
     for i in range(nvars):
-        yi_plus = future[:, i: i + 1]              # (n, 1)  target future
-
-        # H(Q_i⁺ | Q) = H(Q_i⁺, Q) − H(Q)
-        joint_Q    = np.hstack([yi_plus, past])     # (n, nvars+1)
-        H_full     = _entropy(joint_Q,  nbins) - _entropy(past, nbins)
+        # Build [Q_i(t+nlag), Q_1(t), ..., Q_N(t)] so dimension 0 is the target future.
+        joint = np.vstack([future[i], past])
+        p = it.myhistogram(joint.T, nbins)
+        flux = information_flux(p)
+        mi_total[i] = float(it.mutual_info(p, (0,), tuple(range(1, p.ndim))))
 
         for j in range(nvars):
-            if i == j:
-                continue
+            # Histogram dimensions are 1-based after the future target in dim 0.
+            cte_matrix[i, j] = max(0.0, float(flux.get((j + 1,), 0.0)))
 
-            # Q̄_j: all past variables except Q_j
-            other_cols = [k for k in range(nvars) if k != j]
-            Q_bar_j    = past[:, other_cols]        # (n, nvars-1)
-
-            # H(Q_i⁺ | Q̄_j) = H(Q_i⁺, Q̄_j) − H(Q̄_j)
-            joint_bar  = np.hstack([yi_plus, Q_bar_j])  # (n, nvars)
-            H_bar      = _entropy(joint_bar, nbins) - _entropy(Q_bar_j, nbins)
-
-            cte_matrix[i, j] = max(0.0, H_bar - H_full)
-
-    return cte_matrix
+    return cte_matrix, mi_total

@@ -20,6 +20,8 @@ Interpretation: a high correlation means M_i retains information about Q_j,
 which implies Q_j causally influences Q_i (Takens' theorem).
 """
 
+import math
+
 import numpy as np
 
 
@@ -36,6 +38,24 @@ def _embed(x: np.ndarray, E: int, nlag: int) -> np.ndarray:
     for e in range(E):
         M[:, e] = x[(E - 1 - e) * nlag: N - e * nlag if e > 0 else N]
     return M
+
+
+def _corr_and_pvalue(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+    """
+    Pearson correlation with a Fisher-z normal approximation for significance.
+    """
+    corr = float(np.corrcoef(x, y)[0, 1])
+    if not np.isfinite(corr):
+        return 0.0, 1.0
+
+    corr = min(max(corr, -0.999999), 0.999999)
+    n = len(x)
+    if n <= 3:
+        return corr, 1.0
+
+    z = math.atanh(corr) * math.sqrt(n - 3)
+    p_value = math.erfc(abs(z) / math.sqrt(2.0))
+    return corr, p_value
 
 
 def ccm_pairwise(
@@ -57,8 +77,9 @@ def ccm_pairwise(
     Returns
     -------
     ccm_matrix : np.ndarray, shape (nvars, nvars)
-        ccm_matrix[i, j] = CCM_{j→i}.  Diagonal = 0.
+        ccm_matrix[i, j] = CCM_{j→i}, thresholded by p < 0.05.
     """
+    alpha = 0.05
     nvars, N = X.shape
     if E is None:
         E = nvars
@@ -99,9 +120,6 @@ def ccm_pairwise(
         nn_dist = np.take_along_axis(sq_dist, nn_idx, axis=1)**0.5    # (n, E+1)
 
         for j in range(nvars):
-            if i == j:
-                continue
-
             Qj = Qj_vals[j]     # (n,) — Q_j values at the manifold times
             reconstructed = np.zeros(n)
 
@@ -117,8 +135,7 @@ def ccm_pairwise(
                     reconstructed[t] = np.dot(w, Qj[nn_idx[t]])
 
             Qj_target = Qj_vals[j]
-            # Pearson correlation between true Q_j and reconstructed Q̂_j|M_i
-            corr = float(np.corrcoef(Qj_target, reconstructed)[0, 1])
-            ccm_matrix[i, j] = max(0.0, corr)  # clamp negative values to 0
+            corr, p_value = _corr_and_pvalue(Qj_target, reconstructed)
+            ccm_matrix[i, j] = corr if p_value < alpha else 0.0
 
     return ccm_matrix

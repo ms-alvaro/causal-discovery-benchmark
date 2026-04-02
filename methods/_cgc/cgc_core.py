@@ -18,6 +18,8 @@ For each ordered pair (source j → target i):
 
 import numpy as np
 
+from _surd import it_tools as it
+
 
 def _ols_resid_var(y: np.ndarray, X: np.ndarray) -> float:
     """OLS residual variance: var(y - X @ θ̂), corrected for dof."""
@@ -27,7 +29,7 @@ def _ols_resid_var(y: np.ndarray, X: np.ndarray) -> float:
     return float(np.sum(resid**2) / dof)
 
 
-def cgc_pairwise(X: np.ndarray, p: int = 1) -> np.ndarray:
+def cgc_pairwise(X: np.ndarray, p: int = 1, nbins: int = 0) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute CGC for every ordered pair (source j → target i).
 
@@ -39,7 +41,9 @@ def cgc_pairwise(X: np.ndarray, p: int = 1) -> np.ndarray:
     Returns
     -------
     cgc_matrix : np.ndarray, shape (nvars, nvars)
-        cgc_matrix[i, j] = CGC_{j→i}.  Diagonal = 0.
+        cgc_matrix[i, j] = CGC_{j→i}, including self-causation on the diagonal.
+    mi_total : np.ndarray, shape (nvars,)
+        mi_total[i] = I(Q_i⁺ ; Q), where Q contains all present-time variables.
     """
     nvars, N = X.shape
     T = N - p  # usable time steps
@@ -53,37 +57,27 @@ def cgc_pairwise(X: np.ndarray, p: int = 1) -> np.ndarray:
 
     ones = np.ones((T, 1))
     cgc_matrix = np.zeros((nvars, nvars))
+    mi_total = np.zeros(nvars)
+
+    ndim = nvars + 1
+    nbins = max(3, int((T / 10) ** (1.0 / ndim))) if nbins <= 0 else nbins
+    past_present = X[:, :T]
+    future = X[:, p:]
 
     for i in range(nvars):
         y = X[i, p:]  # target: Q_i(t) for t = p..N-1
+        joint = np.vstack([future[i], past_present])
+        p_hist = it.myhistogram(joint.T, nbins)
+        mi_total[i] = float(it.mutual_info(p_hist, (0,), tuple(range(1, p_hist.ndim))))
 
-        # Column index groups (within lag_feats)
-        self_cols  = np.arange(i * p, i * p + p)
-        # All columns not belonging to variable i
-        other_cols = np.array([c for c in range(nvars * p) if c // p != i])
+        all_cols = np.arange(nvars * p)
+        X_full = np.hstack([ones, lag_feats[:, all_cols]])
+        var_full = _ols_resid_var(y, X_full)
 
         for j in range(nvars):
-            if i == j:
-                continue
-
             src_cols  = np.arange(j * p, j * p + p)
-            # Conditioning set Q': all except Q_i and Q_j
-            cond_cols = np.array([c for c in other_cols if c // p != j])
-
-            # Unrestricted model: intercept + Q_i history + Q_j history + Q' history
-            if len(cond_cols):
-                X_full = np.hstack([ones,
-                                    lag_feats[:, self_cols],
-                                    lag_feats[:, src_cols],
-                                    lag_feats[:, cond_cols]])
-                X_rest = np.hstack([ones,
-                                    lag_feats[:, self_cols],
-                                    lag_feats[:, cond_cols]])
-            else:
-                X_full = np.hstack([ones, lag_feats[:, self_cols], lag_feats[:, src_cols]])
-                X_rest = np.hstack([ones, lag_feats[:, self_cols]])
-
-            var_full = _ols_resid_var(y, X_full)
+            restricted_cols = np.array([c for c in all_cols if c // p != j])
+            X_rest = np.hstack([ones, lag_feats[:, restricted_cols]]) if len(restricted_cols) else ones
             var_rest = _ols_resid_var(y, X_rest)
 
             if var_full <= 0 or var_rest <= 0:
@@ -91,4 +85,4 @@ def cgc_pairwise(X: np.ndarray, p: int = 1) -> np.ndarray:
             else:
                 cgc_matrix[i, j] = max(0.0, np.log2(var_rest / var_full))
 
-    return cgc_matrix
+    return cgc_matrix, mi_total
