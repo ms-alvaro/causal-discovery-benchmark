@@ -1,4 +1,4 @@
-# Causal Inference Benchmark
+# Causal Discovery Benchmark
 
 A growing suite for comparing causal inference methods on four canonical
 building-block cases. Every time a new method is found in the literature,
